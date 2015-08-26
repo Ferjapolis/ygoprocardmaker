@@ -1,7 +1,5 @@
 package ygoprocardmaker.data;
 
-import java.util.Arrays;
-import java.util.Base64;
 import javafx.scene.image.Image;
 import org.json.JSONObject;
 import ygoprocardmaker.util.ImageUtils;
@@ -761,7 +759,7 @@ public class Card {
 
     public static JSONObject toJSON(Card card) {
         JSONObject json = new JSONObject(card);
-        json.put("picture", ImageUtils.toString(card.picture));
+        json.put("picture", card.picture != null ? ImageUtils.toString(card.picture) : JSONObject.NULL);
         json.put("sTDestroy", card.sTDestroy);
         return json;
     }
@@ -832,7 +830,7 @@ public class Card {
                 .setString15(json.getString("string15"))
                 .setString16(json.getString("string16"))
                 .setScript(json.getString("script"))
-                .setPicture(ImageUtils.fromString(json.getString("picture")));
+                .setPicture(!json.isNull("picture") ? ImageUtils.fromString(json.getString("picture")) : null);
     }
 
 }

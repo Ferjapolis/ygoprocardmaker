@@ -29,6 +29,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.DataFormat;
@@ -38,6 +39,8 @@ import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageInputStream;
+import javax.imageio.stream.ImageInputStreamImpl;
 import netscape.javascript.JSObject;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -335,6 +338,8 @@ public class YGOProCardMakerController implements Initializable {
 
     private String currentCardType = "Monster";
 
+    private boolean hasPicture = false;
+
     final private ObservableList<Card> cardData = FXCollections.observableArrayList();
 
     @Override
@@ -371,18 +376,7 @@ public class YGOProCardMakerController implements Initializable {
         cardLevelRank.getSelectionModel().select(4);
         cardMonsterType.getItems().setAll(MONSTER_TYPES);
         cardMonsterType.getSelectionModel().selectFirst();
-        BufferedImage bufferedImage;
-        try {
-            bufferedImage = ImageIO.read(new File(FileUtils.getApplicationPath() + File.separator + "textures" + File.separator + "unknown.png"));
-        } catch (IOException ex) {
-            Alert dialog = new Alert(Alert.AlertType.ERROR);
-            dialog.setHeaderText("Couldn't open file!");
-            dialog.setContentText("Check if another process is using the file.");
-            dialog.showAndWait();
-            System.exit(0);
-            return;
-        }
-        cardPicture.setImage(SwingFXUtils.toFXImage(bufferedImage, null));
+        cardPicture.setImage(new Image(getClass().getResourceAsStream("resource/pics/unknown.png")));
     }
 
     private void initializeYGOProInfo() {
@@ -533,6 +527,9 @@ public class YGOProCardMakerController implements Initializable {
         fileChooser.setTitle("Set Card Picture");
         fileChooser.getExtensionFilters().addAll(new ExtensionFilter("Image Files", "*.jpg", "*.jpeg", "*.png"));
         File selectedFile = fileChooser.showOpenDialog(null);
+        if (selectedFile == null) {
+            return;
+        }
         BufferedImage bufferedImage;
         try {
             bufferedImage = ImageIO.read(selectedFile);
@@ -551,6 +548,7 @@ public class YGOProCardMakerController implements Initializable {
             return;
         }
         cardPicture.setImage(SwingFXUtils.toFXImage(ImageUtils.resizeImageWithHint(bufferedImage, bufferedImage.getType(), 177, 254), null));
+        hasPicture = true;
     }
 
     private Card getCardById() {
@@ -627,7 +625,7 @@ public class YGOProCardMakerController implements Initializable {
                 .setString15(ygoproString15.getText())
                 .setString16(ygoproString16.getText())
                 .setScript(loaded ? (String) scriptEditor.getEngine().executeScript("editor.getValue();") : "")
-                .setPicture(cardPicture.getImage());
+                .setPicture(hasPicture ? cardPicture.getImage() : null);
         cardData.set(cardData.indexOf(card), card);
     }
 
@@ -697,8 +695,11 @@ public class YGOProCardMakerController implements Initializable {
         ygoproString15.setText(card.getString15());
         ygoproString16.setText(card.getString16());
         scriptEditor.getEngine().executeScript("editor.setValue('" + card.getScript().replace("\n", "\\n") + "');");
-        if (card.getPicture() != null) {
+        hasPicture = card.getPicture() != null;
+        if (hasPicture) {
             cardPicture.setImage(card.getPicture());
+        } else {
+            cardPicture.setImage(new Image(getClass().getResourceAsStream("resource/pics/unknown.png")));
         }
     }
 
@@ -782,16 +783,8 @@ public class YGOProCardMakerController implements Initializable {
         ygoproString15.setText("");
         ygoproString16.setText("");
         scriptEditor.getEngine().executeScript("editor.setValue('');");
-        BufferedImage bufferedImage;
-        try {
-            bufferedImage = ImageIO.read(new File(FileUtils.getApplicationPath() + File.separator + "textures" + File.separator + "unknown.png"));
-            cardPicture.setImage(SwingFXUtils.toFXImage(bufferedImage, null));
-        } catch (IOException ex) {
-            Alert dialog = new Alert(Alert.AlertType.ERROR);
-            dialog.setHeaderText("Couldn't open file!");
-            dialog.setContentText("Check if another process is using the file.");
-            dialog.showAndWait();
-        }
+        cardPicture.setImage(new Image(getClass().getResourceAsStream("resource/pics/unknown.png")));
+        hasPicture = false;
         Card card = new Card(currentCardId);
         cardData.add(card);
         saveCard(card, true);
@@ -915,13 +908,15 @@ public class YGOProCardMakerController implements Initializable {
                         file.flush();
                     }
                 }
-                File picture = new File("pics" + File.separator + card.getSerial() + ".jpg");
-                BufferedImage image = SwingFXUtils.fromFXImage(card.getPicture(), null);
-                BufferedImage imageRGB = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.OPAQUE);
-                Graphics2D graphics = imageRGB.createGraphics();
-                graphics.drawImage(image, 0, 0, null);
-                ImageIO.write(imageRGB, "jpg", picture);
-                graphics.dispose();
+                if (card.getPicture() != null) {
+                    File picture = new File("pics" + File.separator + card.getSerial() + ".jpg");
+                    BufferedImage image = SwingFXUtils.fromFXImage(card.getPicture(), null);
+                    BufferedImage imageRGB = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.OPAQUE);
+                    Graphics2D graphics = imageRGB.createGraphics();
+                    graphics.drawImage(image, 0, 0, null);
+                    ImageIO.write(imageRGB, "jpg", picture);
+                    graphics.dispose();
+                }
             }
             conn.commit();
             stmt.close();
