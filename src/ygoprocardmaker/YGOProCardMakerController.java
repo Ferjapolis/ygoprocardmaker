@@ -898,7 +898,10 @@ public class YGOProCardMakerController implements Initializable {
     }
 
     private String computeArchtypeCode(Card card) {
-        String code = archtypeData.get(archtypeData.indexOf(card.getArchtype())).getCode() + archtypeData.get(archtypeData.indexOf(card.getArchtype())).getCode();
+        if (archtypeData.isEmpty()) {
+            return "0";
+        }
+        String code = archtypeData.get(archtypeData.indexOf(new Archtype(card.getArchtype()))).getCode() + archtypeData.get(archtypeData.indexOf(new Archtype(card.getArchtype()))).getCode();
         if (code.equals("")) {
             return "0";
         } else {
@@ -1019,7 +1022,7 @@ public class YGOProCardMakerController implements Initializable {
     @FXML
     private void addArchtype() {
         archtypeData.add(new Archtype(archtypeName.getText())
-                .setCode(archtypeCode.getText().length() > 4 ? archtypeCode.getText().substring(0, 4) : archtypeCode.getText()));
+                .setCode(archtypeCode.getText()));
         ygoproArchtype.getItems().add(archtypeName.getText());
         ygoproSecondaryArchtype.getItems().add(archtypeName.getText());
     }

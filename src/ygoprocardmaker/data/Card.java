@@ -772,7 +772,7 @@ public class Card {
                 .setSubSubType(json.getString("subSubType"))
                 .setAttribute(json.getString("attribute"))
                 .setLevelRank(json.getString("levelRank"))
-                .setMonsterType(json.getString("type"))
+                .setMonsterType(json.getString("monsterType"))
                 .setAtk(json.getString("atk"))
                 .setDef(json.getString("def"))
                 .setLoreEffect(json.getString("loreEffect"))
