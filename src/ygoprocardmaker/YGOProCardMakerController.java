@@ -33,17 +33,14 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.DataFormat;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javax.imageio.ImageIO;
-import javax.imageio.stream.ImageInputStream;
-import javax.imageio.stream.ImageInputStreamImpl;
 import netscape.javascript.JSObject;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import ygoprocardmaker.data.Archtype;
 import ygoprocardmaker.data.Card;
 import ygoprocardmaker.enumerate.CardAttribute;
 import static ygoprocardmaker.enumerate.CardAttribute.*;
@@ -289,6 +286,21 @@ public class YGOProCardMakerController implements Initializable {
     @FXML
     private TextArea setDescription;
 
+    @FXML
+    private TextField archtypeName;
+
+    @FXML
+    private TextField archtypeCode;
+
+    @FXML
+    private TableView<Archtype> archtypeTable;
+
+    @FXML
+    private TableColumn<Archtype, String> archtypeNameColumn;
+
+    @FXML
+    private TableColumn<Archtype, String> archtypeCodeColumn;
+
     // Card Table
     @FXML
     private TableView<Card> cardTable;
@@ -341,6 +353,8 @@ public class YGOProCardMakerController implements Initializable {
     private boolean hasPicture = false;
 
     final private ObservableList<Card> cardData = FXCollections.observableArrayList();
+
+    final private ObservableList<Archtype> archtypeData = FXCollections.observableArrayList();
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -401,6 +415,9 @@ public class YGOProCardMakerController implements Initializable {
     }
 
     private void initializeSetInfo() {
+        archtypeNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+        archtypeCodeColumn.setCellValueFactory(new PropertyValueFactory<>("code"));
+        archtypeTable.setItems(archtypeData);
     }
 
     private void initializeCardTable() {
@@ -417,7 +434,7 @@ public class YGOProCardMakerController implements Initializable {
         serialColumn.setCellValueFactory(new PropertyValueFactory<>("serial"));
         cardTable.setItems(cardData);
         cardTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-            if (newSelection != null) {
+            if (newSelection != null && newSelection.getId() != currentCardId) {
                 openCard(newSelection);
             }
         });
@@ -549,6 +566,14 @@ public class YGOProCardMakerController implements Initializable {
         }
         cardPicture.setImage(SwingFXUtils.toFXImage(ImageUtils.resizeImageWithHint(bufferedImage, bufferedImage.getType(), 177, 254), null));
         hasPicture = true;
+    }
+
+    @FXML
+    private void removePicture() {
+        if (hasPicture) {
+            cardPicture.setImage(new Image(getClass().getResourceAsStream("resource/pics/unknown.png")));
+        }
+        hasPicture = false;
     }
 
     private Card getCardById() {
@@ -819,6 +844,7 @@ public class YGOProCardMakerController implements Initializable {
                     .put("author", setAuthor.getText())
                     .put("description", setDescription.getText())
                     .put("cards", cardData.stream().map(c -> Card.toJSON(c)).collect(Collectors.toList()))
+                    .put("archtypes", archtypeData.stream().map(a -> Archtype.toJSON(a)).collect(Collectors.toList()))
                     .toString()); //.toString(2);
             file.flush();
         } catch (Exception ex) {
@@ -835,6 +861,9 @@ public class YGOProCardMakerController implements Initializable {
         fileChooser.setTitle("Open Card Set");
         fileChooser.getExtensionFilters().addAll(new ExtensionFilter("YGOProCardMakerSet (*.ygopcms)", "*.ygopcms"));
         File set = fileChooser.showOpenDialog(null);
+        if (set == null) {
+            return;
+        }
         char[] buf;
         try (FileReader file = new FileReader(set)) {
             buf = new char[(int) set.length()];
@@ -857,6 +886,24 @@ public class YGOProCardMakerController implements Initializable {
         }
         openCard(cardData.get(0));
         cardTable.getSelectionModel().select(0);
+        archtypeData.clear();
+        JSONArray archtypes = json.getJSONArray("archtypes");
+        for (int i = 0; i < archtypes.length(); i++) {
+            archtypeData.add(Archtype.fromJSON(archtypes.getJSONObject(i)));
+        }
+        archtypeData.stream().forEach(archtype -> {
+            ygoproSecondaryArchtype.getItems().add(archtype.getName());
+            ygoproArchtype.getItems().add(archtype.getName());
+        });
+    }
+
+    private String computeArchtypeCode(Card card) {
+        String code = archtypeData.get(archtypeData.indexOf(card.getArchtype())).getCode() + archtypeData.get(archtypeData.indexOf(card.getArchtype())).getCode();
+        if (code.equals("")) {
+            return "0";
+        } else {
+            return code;
+        }
     }
 
     @FXML
@@ -873,7 +920,7 @@ public class YGOProCardMakerController implements Initializable {
                         + card.getSerial() + "\",\""
                         + CardFormat.code(card.getFormat()) + "\",\""
                         + (card.getAlias().equals("") ? "0" : card.getAlias()) + "\",\""
-                        + "0" + "\",\""
+                        + computeArchtypeCode(card) + "\",\""
                         + CardType.code(card.getType(), card.getSubType(), card.getSubSubType()) + "\",\""
                         + card.getAtk() + "\",\""
                         + card.getDef() + "\",\""
@@ -970,6 +1017,10 @@ public class YGOProCardMakerController implements Initializable {
     }
 
     @FXML
-    public void uninstallSet() {
+    private void addArchtype() {
+        archtypeData.add(new Archtype(archtypeName.getText())
+                .setCode(archtypeCode.getText().length() > 4 ? archtypeCode.getText().substring(0, 4) : archtypeCode.getText()));
+        ygoproArchtype.getItems().add(archtypeName.getText());
+        ygoproSecondaryArchtype.getItems().add(archtypeName.getText());
     }
 }
