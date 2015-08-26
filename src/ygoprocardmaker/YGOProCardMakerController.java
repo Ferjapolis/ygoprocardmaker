@@ -1,5 +1,6 @@
 package ygoprocardmaker;
 
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileReader;
@@ -11,8 +12,6 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -31,10 +30,15 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.DataFormat;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javax.imageio.ImageIO;
+import netscape.javascript.JSObject;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import ygoprocardmaker.data.Card;
@@ -329,7 +333,7 @@ public class YGOProCardMakerController implements Initializable {
     // Internal
     private int currentCardId = 1;
 
-    private String currentCardType;
+    private String currentCardType = "Monster";
 
     final private ObservableList<Card> cardData = FXCollections.observableArrayList();
 
@@ -392,6 +396,14 @@ public class YGOProCardMakerController implements Initializable {
 
     private void initializeCardScript() {
         scriptEditor.getEngine().load("file:///" + FileUtils.getApplicationPath() + File.separator + "ace" + File.separator + "index.html");
+        ((JSObject) scriptEditor.getEngine().executeScript("window")).setMember("java", new Object() {
+            public void paste() {
+                String content = (String) Clipboard.getSystemClipboard().getContent(DataFormat.PLAIN_TEXT);
+                if (content != null) {
+                    scriptEditor.getEngine().executeScript("editor.onPaste(\"" + content.replace("\n", "\\n") + "\");");
+                }
+            }
+        });
     }
 
     private void initializeSetInfo() {
@@ -507,7 +519,7 @@ public class YGOProCardMakerController implements Initializable {
             cardSubSubType.setDisable(true);
             cardSubSubType.getItems().setAll(EMPTY);
         }
-        if (currentCardType.equals("Normal") && currentCardType.equals("Monster")) {
+        if (newSubCardType.equals("Normal") && currentCardType.equals("Monster")) {
             cardLoreEffectLabel.setText("Lore:");
         } else {
             cardLoreEffectLabel.setText("Effect:");
@@ -519,7 +531,7 @@ public class YGOProCardMakerController implements Initializable {
     private void setPicture() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Set Card Picture");
-        fileChooser.getExtensionFilters().addAll(new ExtensionFilter("Image Files", "*.jpg", "*.jpeg", "*.png", "*.bmp"));
+        fileChooser.getExtensionFilters().addAll(new ExtensionFilter("Image Files", "*.jpg", "*.jpeg", "*.png"));
         File selectedFile = fileChooser.showOpenDialog(null);
         BufferedImage bufferedImage;
         try {
@@ -783,6 +795,7 @@ public class YGOProCardMakerController implements Initializable {
         Card card = new Card(currentCardId);
         cardData.add(card);
         saveCard(card, true);
+        cardTable.getSelectionModel().select(card);
     }
 
     @FXML
@@ -895,6 +908,20 @@ public class YGOProCardMakerController implements Initializable {
                         + (card.getString14().equals("") ? " " : card.getString14()) + "\",\""
                         + (card.getString15().equals("") ? " " : card.getString15()) + "\",\""
                         + (card.getString16().equals("") ? " " : card.getString16()) + "\");");
+                if (!card.getType().equals("Monster") || !card.getSubType().equals("Normal")) {
+                    File script = new File("script" + File.separator + "c" + card.getSerial() + ".lua");
+                    try (FileWriter file = new FileWriter(script)) {
+                        file.write(card.getScript());
+                        file.flush();
+                    }
+                }
+                File picture = new File("pics" + File.separator + card.getSerial() + ".jpg");
+                BufferedImage image = SwingFXUtils.fromFXImage(card.getPicture(), null);
+                BufferedImage imageRGB = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.OPAQUE);
+                Graphics2D graphics = imageRGB.createGraphics();
+                graphics.drawImage(image, 0, 0, null);
+                ImageIO.write(imageRGB, "jpg", picture);
+                graphics.dispose();
             }
             conn.commit();
             stmt.close();
@@ -908,7 +935,7 @@ public class YGOProCardMakerController implements Initializable {
             dialog.setHeaderText("SQLite JDBC is not installed!");
             dialog.setContentText("Install sqlite-jdbc-<version>.jar\nin lib folder.");
             dialog.showAndWait();
-        } catch (SQLException | NumberFormatException ex) {
+        } catch (SQLException | NumberFormatException | IOException ex) {
             Alert dialog = new Alert(Alert.AlertType.ERROR);
             dialog.setHeaderText("Error in card database!");
             dialog.setContentText("");
