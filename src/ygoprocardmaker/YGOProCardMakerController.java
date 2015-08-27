@@ -993,9 +993,9 @@ public class YGOProCardMakerController implements Initializable {
                         + (card.getAlias().equals("") ? "0" : card.getAlias()) + "\",\""
                         + computeArchtypeCode(card) + "\",\""
                         + CardType.code(card.getType(), card.getSubType(), card.getSubSubType()) + "\",\""
-                        + card.getAtk() + "\",\""
-                        + card.getDef() + "\",\""
-                        + Integer.parseInt(card.getLevelRank()) + "\",\""
+                        + (card.getAtk().equals("") ? "0" : card.getAtk()) + "\",\""
+                        + (card.getDef().equals("") ? "0" : card.getDef()) + "\",\""
+                        + Integer.parseInt(card.getLevelRank().equals("") ? "0" : card.getLevelRank()) + "\",\""
                         + CardMonsterType.code(card.getMonsterType()) + "\",\""
                         + CardAttribute.code(card.getAttribute()) + "\",\""
                         + "0" + "\");");
