@@ -352,7 +352,7 @@ public class YGOProCardMakerController implements Initializable {
     // Menu
     @FXML
     private MenuItem newCmd;
-    
+
     @FXML
     private MenuItem openCmd;
 
@@ -587,15 +587,15 @@ public class YGOProCardMakerController implements Initializable {
             bufferedImage = ImageIO.read(selectedFile);
         } catch (IOException ex) {
             Alert dialog = new Alert(Alert.AlertType.ERROR);
-            dialog.setHeaderText("Couldn't open file!");
-            dialog.setContentText("Check if another process is using the file.");
+            dialog.setHeaderText("File Error");
+            dialog.setContentText("Couldn't open image.");
             dialog.showAndWait();
             return;
         }
         if (bufferedImage.getHeight() == 0 || bufferedImage.getWidth() == 0) {
             Alert dialog = new Alert(Alert.AlertType.WARNING);
-            dialog.setHeaderText("Invalid image size!");
-            dialog.setContentText("Empty image.");
+            dialog.setHeaderText("Invalid Image");
+            dialog.setContentText("Image size can't be null.");
             dialog.showAndWait();
             return;
         }
@@ -901,15 +901,15 @@ public class YGOProCardMakerController implements Initializable {
             file.flush();
         } catch (Exception ex) {
             Alert dialog = new Alert(Alert.AlertType.ERROR);
-            dialog.setHeaderText("Couldn't save file!");
-            dialog.setContentText("Check if file exists.");
+            dialog.setHeaderText("File Error");
+            dialog.setContentText("Couldn't save set.");
             dialog.showAndWait();
         }
         if (choose) {
             setFile = set;
         }
     }
-    
+
     @FXML
     private void newSet() {
         setFile = null;
@@ -937,8 +937,8 @@ public class YGOProCardMakerController implements Initializable {
             file.read(buf);
         } catch (Exception ex) {
             Alert dialog = new Alert(Alert.AlertType.ERROR);
-            dialog.setHeaderText("Couldn't open file!");
-            dialog.setContentText("Check if file exists.");
+            dialog.setHeaderText("File Error");
+            dialog.setContentText("Couldn't open set.");
             dialog.showAndWait();
             return;
         }
@@ -1040,18 +1040,18 @@ public class YGOProCardMakerController implements Initializable {
             stmt.close();
             conn.close();
             Alert dialog = new Alert(Alert.AlertType.INFORMATION);
-            dialog.setHeaderText("Set installed successfully!");
-            dialog.setContentText("");
+            dialog.setHeaderText(null);
+            dialog.setContentText("Set installed successfully!");
             dialog.showAndWait();
         } catch (ClassNotFoundException ex) {
             Alert dialog = new Alert(Alert.AlertType.ERROR);
-            dialog.setHeaderText("SQLite JDBC is not installed!");
-            dialog.setContentText("Install sqlite-jdbc-<version>.jar\nin lib folder.");
+            dialog.setHeaderText("Card Database Error");
+            dialog.setContentText("SQLite JDBC is not installed.");
             dialog.showAndWait();
         } catch (SQLException | NumberFormatException | IOException ex) {
             Alert dialog = new Alert(Alert.AlertType.ERROR);
-            dialog.setHeaderText("Error in card database!");
-            dialog.setContentText("");
+            dialog.setHeaderText("Card Database Error");
+            dialog.setContentText("Couldn't install set in card database.");
             dialog.showAndWait();
             try {
                 if (conn != null) {
@@ -1059,19 +1059,19 @@ public class YGOProCardMakerController implements Initializable {
                 }
             } catch (SQLException ex1) {
                 dialog = new Alert(Alert.AlertType.ERROR);
-                dialog.setHeaderText("Rollback error!");
-                dialog.setContentText("");
+                dialog.setHeaderText("Card Database Error");
+                dialog.setContentText("Rollback error.");
                 dialog.showAndWait();
             }
         } finally {
             try {
-                if (stmt != null && conn !=null && !stmt.isClosed() && !conn.isClosed()) {
+                if (stmt != null && conn != null && !stmt.isClosed() && !conn.isClosed()) {
                     stmt.close();
                 }
             } catch (SQLException ex) {
                 Alert dialog = new Alert(Alert.AlertType.ERROR);
-                dialog.setHeaderText("Error while canceling card database operation!");
-                dialog.setContentText("");
+                dialog.setHeaderText("Card Database Error");
+                dialog.setContentText("Couldn't cancel operation in card database.");
                 dialog.showAndWait();
                 try {
                     if (conn != null) {
@@ -1079,8 +1079,8 @@ public class YGOProCardMakerController implements Initializable {
                     }
                 } catch (SQLException ex1) {
                     dialog = new Alert(Alert.AlertType.ERROR);
-                    dialog.setHeaderText("Error while closing card database!");
-                    dialog.setContentText("");
+                    dialog.setHeaderText("Card Database Error");
+                    dialog.setContentText("Couldn't close card database correctly.");
                     dialog.showAndWait();
                 }
             }
@@ -1094,7 +1094,7 @@ public class YGOProCardMakerController implements Initializable {
         ygoproArchtype.getItems().add(archtypeName.getText());
         ygoproSecondaryArchtype.getItems().add(archtypeName.getText());
     }
-    
+
     @FXML
     private void quit() {
         System.exit(0);

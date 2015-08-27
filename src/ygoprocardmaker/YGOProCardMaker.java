@@ -17,8 +17,9 @@ public class YGOProCardMaker extends Application {
     public void start(Stage stage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("YGOProCardMaker.fxml"));
         Scene scene = new Scene(root);
-        stage.setTitle("YGOProCardMaker!");
+        stage.setTitle("YGOProCardMaker");
         stage.getIcons().add(new Image(getClass().getResourceAsStream("resource/pics/icon.png")));
+        stage.setResizable(false);
         stage.setScene(scene);
         stage.show();
     }
