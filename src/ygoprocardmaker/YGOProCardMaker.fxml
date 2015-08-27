@@ -335,12 +335,16 @@
         <menus>
           <Menu mnemonicParsing="false" text="File">
             <items>
-                  <MenuItem mnemonicParsing="false" onAction="#openSet" text="Open Set" />
-                  <MenuItem mnemonicParsing="false" onAction="#saveSet" text="Save Set" />
+                  <MenuItem fx:id="newCmd" mnemonicParsing="false" onAction="#newSet" text="New" />
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem mnemonicParsing="false" onAction="#installSet" text="Install Set" />
+                  <MenuItem fx:id="openCmd" mnemonicParsing="false" onAction="#openSet" text="Open..." />
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem mnemonicParsing="false" text="Quit" />
+                  <MenuItem fx:id="saveCmd" mnemonicParsing="false" onAction="#saveSet" text="Save" />
+                  <MenuItem fx:id="saveAsCmd" mnemonicParsing="false" onAction="#saveSetAs" text="Save As..." />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem fx:id="exportCmd" mnemonicParsing="false" onAction="#exportSet" text="Export" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem fx:id="quitCmd" mnemonicParsing="false" onAction="#quit" text="Quit" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Help">
