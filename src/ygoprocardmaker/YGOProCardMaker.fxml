@@ -100,7 +100,7 @@
                                                          </children>
                                                       </GridPane>
                                                       <Label fx:id="cardLoreEffectLabel" layoutX="22.0" layoutY="332.0" text="Lore:" />
-                                                      <TextArea fx:id="cardLoreEffect" layoutX="73.0" layoutY="330.0" prefHeight="78.0" prefWidth="439.0" />
+                                                      <TextArea fx:id="cardLoreEffect" layoutX="73.0" layoutY="330.0" prefHeight="78.0" prefWidth="439.0" wrapText="true" />
                                                       <Button layoutX="109.0" layoutY="282.0" mnemonicParsing="false" onAction="#removePicture" prefHeight="25.0" prefWidth="82.0" text="Remove" />
                                                    </children>
                                                 </Pane>
@@ -216,22 +216,22 @@
                                                                 <RowConstraints maxHeight="167.0" minHeight="10.0" prefHeight="115.0" vgrow="SOMETIMES" />
                                                               </rowConstraints>
                                                                <children>
-                                                                  <TextArea fx:id="ygoproString1" prefHeight="140.0" prefWidth="114.0" GridPane.rowIndex="1" />
-                                                                  <TextArea fx:id="ygoproString2" prefHeight="121.0" prefWidth="113.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                                                  <TextArea fx:id="ygoproString3" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                                                                  <TextArea fx:id="ygoproString4" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="3" GridPane.rowIndex="1" />
-                                                                  <TextArea fx:id="ygoproString5" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="4" GridPane.rowIndex="1" />
-                                                                  <TextArea fx:id="ygoproString6" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="5" GridPane.rowIndex="1" />
-                                                                  <TextArea fx:id="ygoproString7" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="6" GridPane.rowIndex="1" />
-                                                                  <TextArea fx:id="ygoproString8" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="7" GridPane.rowIndex="1" />
-                                                                  <TextArea fx:id="ygoproString9" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="8" GridPane.rowIndex="1" />
-                                                                  <TextArea fx:id="ygoproString10" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="9" GridPane.rowIndex="1" />
-                                                                  <TextArea fx:id="ygoproString11" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="10" GridPane.rowIndex="1" />
-                                                                  <TextArea fx:id="ygoproString12" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="11" GridPane.rowIndex="1" />
-                                                                  <TextArea fx:id="ygoproString13" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="12" GridPane.rowIndex="1" />
-                                                                  <TextArea fx:id="ygoproString14" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="13" GridPane.rowIndex="1" />
-                                                                  <TextArea fx:id="ygoproString15" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="14" GridPane.rowIndex="1" />
-                                                                  <TextArea fx:id="ygoproString16" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="15" GridPane.rowIndex="1" />
+                                                                  <TextArea fx:id="ygoproString1" prefHeight="140.0" prefWidth="114.0" wrapText="true" GridPane.rowIndex="1" />
+                                                                  <TextArea fx:id="ygoproString2" prefHeight="121.0" prefWidth="113.0" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                                  <TextArea fx:id="ygoproString3" prefHeight="200.0" prefWidth="200.0" wrapText="true" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                                                                  <TextArea fx:id="ygoproString4" prefHeight="200.0" prefWidth="200.0" wrapText="true" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                                                                  <TextArea fx:id="ygoproString5" prefHeight="200.0" prefWidth="200.0" wrapText="true" GridPane.columnIndex="4" GridPane.rowIndex="1" />
+                                                                  <TextArea fx:id="ygoproString6" prefHeight="200.0" prefWidth="200.0" wrapText="true" GridPane.columnIndex="5" GridPane.rowIndex="1" />
+                                                                  <TextArea fx:id="ygoproString7" prefHeight="200.0" prefWidth="200.0" wrapText="true" GridPane.columnIndex="6" GridPane.rowIndex="1" />
+                                                                  <TextArea fx:id="ygoproString8" prefHeight="200.0" prefWidth="200.0" wrapText="true" GridPane.columnIndex="7" GridPane.rowIndex="1" />
+                                                                  <TextArea fx:id="ygoproString9" prefHeight="200.0" prefWidth="200.0" wrapText="true" GridPane.columnIndex="8" GridPane.rowIndex="1" />
+                                                                  <TextArea fx:id="ygoproString10" prefHeight="200.0" prefWidth="200.0" wrapText="true" GridPane.columnIndex="9" GridPane.rowIndex="1" />
+                                                                  <TextArea fx:id="ygoproString11" prefHeight="200.0" prefWidth="200.0" wrapText="true" GridPane.columnIndex="10" GridPane.rowIndex="1" />
+                                                                  <TextArea fx:id="ygoproString12" prefHeight="200.0" prefWidth="200.0" wrapText="true" GridPane.columnIndex="11" GridPane.rowIndex="1" />
+                                                                  <TextArea fx:id="ygoproString13" prefHeight="200.0" prefWidth="200.0" wrapText="true" GridPane.columnIndex="12" GridPane.rowIndex="1" />
+                                                                  <TextArea fx:id="ygoproString14" prefHeight="200.0" prefWidth="200.0" wrapText="true" GridPane.columnIndex="13" GridPane.rowIndex="1" />
+                                                                  <TextArea fx:id="ygoproString15" prefHeight="200.0" prefWidth="200.0" wrapText="true" GridPane.columnIndex="14" GridPane.rowIndex="1" />
+                                                                  <TextArea fx:id="ygoproString16" prefHeight="200.0" prefWidth="200.0" wrapText="true" GridPane.columnIndex="15" GridPane.rowIndex="1" />
                                                                   <Label text=" String 1" />
                                                                   <Label text=" String 2" GridPane.columnIndex="1" />
                                                                   <Label text=" String 3" GridPane.columnIndex="2" />
@@ -308,7 +308,7 @@
                           </columns>
                         </TableView>
                         <Button layoutX="165.0" layoutY="371.0" mnemonicParsing="false" onAction="#addArchtype" prefHeight="25.0" prefWidth="118.0" text="Add Archtype" />
-                        <TextArea fx:id="setDescription" layoutX="165.0" layoutY="100.0" prefHeight="117.0" prefWidth="246.0" />
+                        <TextArea fx:id="setDescription" layoutX="165.0" layoutY="100.0" prefHeight="117.0" prefWidth="246.0" wrapText="true" />
                         <GridPane layoutX="14.0" layoutY="405.0" prefHeight="108.0" prefWidth="302.0">
                           <columnConstraints>
                             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
