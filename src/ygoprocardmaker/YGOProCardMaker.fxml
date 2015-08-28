@@ -38,7 +38,7 @@
                                                 <Pane prefHeight="470.0" prefWidth="582.0">
                                                    <children>
                                                       <ImageView fx:id="cardPicture" fitHeight="254.0" fitWidth="177.0" layoutX="14.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true" />
-                                                      <Button layoutX="14.0" layoutY="282.0" mnemonicParsing="false" onAction="#setPicture" prefHeight="25.0" prefWidth="90.0" text="Set Picture" />
+                                                      <Button layoutX="14.0" layoutY="282.0" mnemonicParsing="false" onAction="#handleSetPictureButton" prefHeight="25.0" prefWidth="90.0" text="Set Picture" />
                                                       <GridPane layoutX="209.0" layoutY="14.0" prefHeight="304.0" prefWidth="302.0">
                                                         <columnConstraints>
                                                           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -101,7 +101,7 @@
                                                       </GridPane>
                                                       <Label fx:id="cardLoreEffectLabel" layoutX="22.0" layoutY="332.0" text="Lore:" />
                                                       <TextArea fx:id="cardLoreEffect" layoutX="73.0" layoutY="330.0" prefHeight="78.0" prefWidth="439.0" wrapText="true" />
-                                                      <Button layoutX="109.0" layoutY="282.0" mnemonicParsing="false" onAction="#removePicture" prefHeight="25.0" prefWidth="82.0" text="Remove" />
+                                                      <Button layoutX="109.0" layoutY="282.0" mnemonicParsing="false" onAction="#handleRemovePictureButton" prefHeight="25.0" prefWidth="82.0" text="Remove" />
                                                    </children>
                                                 </Pane>
                                              </children>
@@ -267,9 +267,9 @@
                               </Accordion>
                               <ToolBar prefHeight="40.0" prefWidth="318.0">
                                 <items>
-                                  <Button mnemonicParsing="false" onAction="#saveCard" prefHeight="25.0" prefWidth="85.0" text="Save Card" />
-                                    <Button mnemonicParsing="false" onAction="#newCard" text="New Card" />
-                                    <Button mnemonicParsing="false" onAction="#deleteCard" text="Delete Card" />
+                                  <Button mnemonicParsing="false" onAction="#handleSaveCardButton" prefHeight="25.0" prefWidth="85.0" text="Save Card" />
+                                    <Button mnemonicParsing="false" onAction="#handleNewCardButton" text="New Card" />
+                                    <Button mnemonicParsing="false" onAction="#handleDeleteCardButton" text="Delete Card" />
                                 </items>
                               </ToolBar>
                            </children>
@@ -307,7 +307,7 @@
                             <TableColumn fx:id="archtypeCodeColumn" prefWidth="125.0" text="Code" />
                           </columns>
                         </TableView>
-                        <Button layoutX="165.0" layoutY="371.0" mnemonicParsing="false" onAction="#addArchtype" prefHeight="25.0" prefWidth="118.0" text="Add Archtype" />
+                        <Button layoutX="165.0" layoutY="371.0" mnemonicParsing="false" onAction="#handleAddArchtypeButton" prefHeight="25.0" prefWidth="118.0" text="Add Archtype" />
                         <TextArea fx:id="setDescription" layoutX="165.0" layoutY="100.0" prefHeight="117.0" prefWidth="246.0" wrapText="true" />
                         <GridPane layoutX="14.0" layoutY="405.0" prefHeight="108.0" prefWidth="302.0">
                           <columnConstraints>
@@ -335,16 +335,16 @@
         <menus>
           <Menu mnemonicParsing="false" text="File">
             <items>
-                  <MenuItem fx:id="newCmd" mnemonicParsing="false" onAction="#newSet" text="New" />
+                  <MenuItem fx:id="newCmd" mnemonicParsing="false" onAction="#handleNewSetMenuItem" text="New" />
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem fx:id="openCmd" mnemonicParsing="false" onAction="#openSet" text="Open..." />
+                  <MenuItem fx:id="openCmd" mnemonicParsing="false" onAction="#handleOpenSetMenuItem" text="Open..." />
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem fx:id="saveCmd" mnemonicParsing="false" onAction="#saveSet" text="Save" />
-                  <MenuItem fx:id="saveAsCmd" mnemonicParsing="false" onAction="#saveSetAs" text="Save As..." />
+                  <MenuItem fx:id="saveCmd" mnemonicParsing="false" onAction="#handleSaveSetMenuItem" text="Save" />
+                  <MenuItem fx:id="saveAsCmd" mnemonicParsing="false" onAction="#handleSaveSetAsMenuItem" text="Save As..." />
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem fx:id="exportCmd" mnemonicParsing="false" onAction="#exportSet" text="Export" />
+                  <MenuItem fx:id="exportCmd" mnemonicParsing="false" onAction="#handleExportSetMenuItem" text="Export" />
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem fx:id="quitCmd" mnemonicParsing="false" onAction="#quit" text="Quit" />
+                  <MenuItem fx:id="quitCmd" mnemonicParsing="false" onAction="#handleQuitMenuItem" text="Quit" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Help">

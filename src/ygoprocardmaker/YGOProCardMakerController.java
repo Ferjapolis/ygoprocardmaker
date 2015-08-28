@@ -3,6 +3,7 @@ package ygoprocardmaker;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -12,6 +13,8 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -51,6 +54,7 @@ import static ygoprocardmaker.enumerate.CardLevelRank.*;
 import static ygoprocardmaker.enumerate.CardMonsterType.*;
 import static ygoprocardmaker.enumerate.CardType.*;
 import static ygoprocardmaker.enumerate.CardFormat.*;
+import ygoprocardmaker.exception.InvalidPictureException;
 import ygoprocardmaker.util.FileUtils;
 import ygoprocardmaker.util.ImageUtils;
 import ygoprocardmaker.util.YGOProUtils;
@@ -366,17 +370,26 @@ public class YGOProCardMakerController implements Initializable {
     private MenuItem quitCmd;
 
     // Internal
-    private int currentCardId = 1;
+    private int currentCardId;
 
-    private String currentCardType = "Monster";
+    private String currentCardType;
 
-    private boolean hasPicture = false;
+    private boolean hasPicture;
 
-    final private ObservableList<Card> cardData = FXCollections.observableArrayList();
+    final private ObservableList<Card> cardData;
 
-    final private ObservableList<Archtype> archtypeData = FXCollections.observableArrayList();
+    final private ObservableList<Archtype> archtypeData;
 
-    private File setFile = null;
+    private File setFile;
+
+    public YGOProCardMakerController() {
+        currentCardId = 1;
+        currentCardType = "Monster";
+        hasPicture = false;
+        cardData = FXCollections.observableArrayList();
+        archtypeData = FXCollections.observableArrayList();
+        setFile = null;
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -387,6 +400,159 @@ public class YGOProCardMakerController implements Initializable {
         initializeCardTable();
         initializeMenu();
         cardEditorAccordion.setExpandedPane(cardInfoPane);
+    }
+
+    @FXML
+    private void handleSaveCardButton() {
+        saveCard(getCardById(), true);
+    }
+
+    @FXML
+    private void handleNewCardButton() {
+        newCard();
+    }
+
+    @FXML
+    private void handleDeleteCardButton() {
+        deleteCard();
+    }
+
+    @FXML
+    private void handleSetPictureButton() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Set Card Picture");
+        fileChooser.getExtensionFilters().addAll(new ExtensionFilter("Image Files", "*.jpg", "*.jpeg", "*.png"));
+        File picture = fileChooser.showOpenDialog(null);
+        if (picture == null) {
+            return;
+        }
+        try {
+            setPicture(picture);
+        } catch (IOException ex) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setHeaderText("File Error");
+            alert.setContentText("Couldn't open image file.");
+            alert.showAndWait();
+        } catch (InvalidPictureException ex) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setHeaderText("Invalid Image");
+            alert.setContentText("Image size can't be null.");
+            alert.showAndWait();
+        }
+    }
+
+    @FXML
+    private void handleRemovePictureButton() {
+        removePicture();
+    }
+
+    @FXML
+    private void handleAddArchtypeButton() {
+        addArchtype();
+    }
+
+    @FXML
+    private void handleNewSetMenuItem() {
+        newSet();
+    }
+
+    @FXML
+    private void handleOpenSetMenuItem() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open Card Set");
+        fileChooser.getExtensionFilters().addAll(new ExtensionFilter("YGOProCardMakerSet (*.ygopcms)", "*.ygopcms"));
+        File set = fileChooser.showOpenDialog(null);
+        if (set == null) {
+            return;
+        }
+        try {
+            openSet(set);
+        } catch (IOException ex) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setHeaderText("File Error");
+            alert.setContentText("Couldn't open set.");
+            alert.showAndWait();
+        }
+    }
+
+    @FXML
+    private void handleSaveSetMenuItem() {
+        File set;
+        if (setFile == null) {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Save Card Set");
+            fileChooser.getExtensionFilters().addAll(new ExtensionFilter("YGOProCardMakerSet (*.ygopcms)", "*.ygopcms"));
+            set = fileChooser.showSaveDialog(null);
+            if (set == null) {
+                return;
+            }
+            if (!set.getPath().toLowerCase().endsWith(".ygopcms")) {
+                set = new File(set.getPath() + ".ygopcms");
+            }
+        } else {
+            set = setFile;
+        }
+        try {
+            saveSet(set);
+        } catch (IOException ex) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setHeaderText("File Error");
+            alert.setContentText("Couldn't save set.");
+            alert.showAndWait();
+        }
+    }
+
+    @FXML
+    private void handleSaveSetAsMenuItem() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save Card Set");
+        fileChooser.getExtensionFilters().addAll(new ExtensionFilter("YGOProCardMakerSet (*.ygopcms)", "*.ygopcms"));
+        File set = fileChooser.showSaveDialog(null);
+        if (set == null) {
+            return;
+        }
+        if (!set.getPath().toLowerCase().endsWith(".ygopcms")) {
+            set = new File(set.getPath() + ".ygopcms");
+        }
+        try {
+            saveSet(set);
+        } catch (IOException ex) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setHeaderText("File Error");
+            alert.setContentText("Couldn't save set.");
+            alert.showAndWait();
+        }
+    }
+
+    @FXML
+    private void handleExportSetMenuItem() {
+        try {
+            exportSet();
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setHeaderText(null);
+            alert.setContentText("Set installed successfully!");
+            alert.showAndWait();
+        } catch (ClassNotFoundException ex) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setHeaderText("Card Database Error");
+            alert.setContentText("SQLite JDBC is not installed.");
+            alert.showAndWait();
+        } catch (SQLException ex) {
+            Alert dialog = new Alert(Alert.AlertType.ERROR);
+            dialog.setHeaderText("Card Database Error");
+            dialog.setContentText("Couldn't install set in card database.");
+            dialog.showAndWait();
+        } catch (IOException ex) {
+            Alert dialog = new Alert(Alert.AlertType.ERROR);
+            dialog.setHeaderText("Export Error");
+            dialog.setContentText("Couldn't save image or script file.");
+            dialog.showAndWait();
+        }
+    }
+
+    @FXML
+    private void handleQuitMenuItem() {
+        System.exit(0);
     }
 
     private void initializeCardInfo() {
@@ -570,37 +736,15 @@ public class YGOProCardMakerController implements Initializable {
         cardSubSubType.getSelectionModel().selectFirst();
     }
 
-    @FXML
-    private void setPicture() {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Set Card Picture");
-        fileChooser.getExtensionFilters().addAll(new ExtensionFilter("Image Files", "*.jpg", "*.jpeg", "*.png"));
-        File selectedFile = fileChooser.showOpenDialog(null);
-        if (selectedFile == null) {
-            return;
-        }
-        BufferedImage bufferedImage;
-        try {
-            bufferedImage = ImageIO.read(selectedFile);
-        } catch (IOException ex) {
-            Alert dialog = new Alert(Alert.AlertType.ERROR);
-            dialog.setHeaderText("File Error");
-            dialog.setContentText("Couldn't open image.");
-            dialog.showAndWait();
-            return;
-        }
+    private void setPicture(File picture) throws IOException, InvalidPictureException {
+        BufferedImage bufferedImage = ImageIO.read(picture);
         if (bufferedImage.getHeight() == 0 || bufferedImage.getWidth() == 0) {
-            Alert dialog = new Alert(Alert.AlertType.WARNING);
-            dialog.setHeaderText("Invalid Image");
-            dialog.setContentText("Image size can't be null.");
-            dialog.showAndWait();
-            return;
+            throw new InvalidPictureException();
         }
         cardPicture.setImage(SwingFXUtils.toFXImage(ImageUtils.resizeImageWithHint(bufferedImage, bufferedImage.getType(), 177, 254), null));
         hasPicture = true;
     }
 
-    @FXML
     private void removePicture() {
         if (hasPicture) {
             cardPicture.setImage(new Image(getClass().getResourceAsStream("resource/pics/unknown.png")));
@@ -610,11 +754,6 @@ public class YGOProCardMakerController implements Initializable {
 
     private Card getCardById() {
         return cardData.get(cardData.indexOf(new Card(currentCardId)));
-    }
-
-    @FXML
-    private void saveCard() {
-        saveCard(getCardById(), true);
     }
 
     private void saveCard(Card card, boolean loaded) {
@@ -773,7 +912,6 @@ public class YGOProCardMakerController implements Initializable {
         return greatest + 1;
     }
 
-    @FXML
     private void newCard() {
         currentCardId = getLowestUnusedId();
         cardName.setText("");
@@ -848,7 +986,6 @@ public class YGOProCardMakerController implements Initializable {
         cardTable.getSelectionModel().select(card);
     }
 
-    @FXML
     private void deleteCard() {
         Card card = getCardById();
         int index = cardData.indexOf(card);
@@ -861,32 +998,7 @@ public class YGOProCardMakerController implements Initializable {
         }
     }
 
-    @FXML
-    private void saveSetAs() {
-        save(true);
-    }
-
-    @FXML
-    private void saveSet() {
-        save(setFile == null);
-    }
-
-    private void save(boolean choose) {
-        File set;
-        if (choose) {
-            FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Save Card Set");
-            fileChooser.getExtensionFilters().addAll(new ExtensionFilter("YGOProCardMakerSet (*.ygopcms)", "*.ygopcms"));
-            set = fileChooser.showSaveDialog(null);
-        } else {
-            set = setFile;
-        }
-        if (set == null) {
-            return;
-        }
-        if (!set.getPath().toLowerCase().endsWith(".ygopcms")) {
-            set = new File(set.getPath() + ".ygopcms");
-        }
+    private void saveSet(File set) throws IOException {
         try (FileWriter file = new FileWriter(set)) {
             file.write(new JSONObject()
                     .put("name", setTitle.getText())
@@ -896,18 +1008,10 @@ public class YGOProCardMakerController implements Initializable {
                     .put("archtypes", archtypeData.stream().map(a -> Archtype.toJSON(a)).collect(Collectors.toList()))
                     .toString()); //.toString(2);
             file.flush();
-        } catch (Exception ex) {
-            Alert dialog = new Alert(Alert.AlertType.ERROR);
-            dialog.setHeaderText("File Error");
-            dialog.setContentText("Couldn't save set.");
-            dialog.showAndWait();
         }
-        if (choose) {
-            setFile = set;
-        }
+        setFile = set;
     }
 
-    @FXML
     private void newSet() {
         setFile = null;
         cardData.clear();
@@ -919,25 +1023,11 @@ public class YGOProCardMakerController implements Initializable {
         newCard();
     }
 
-    @FXML
-    private void openSet() {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Open Card Set");
-        fileChooser.getExtensionFilters().addAll(new ExtensionFilter("YGOProCardMakerSet (*.ygopcms)", "*.ygopcms"));
-        File set = fileChooser.showOpenDialog(null);
-        if (set == null) {
-            return;
-        }
+    private void openSet(File set) throws IOException {
         char[] buf;
         try (FileReader file = new FileReader(set)) {
             buf = new char[(int) set.length()];
             file.read(buf);
-        } catch (Exception ex) {
-            Alert dialog = new Alert(Alert.AlertType.ERROR);
-            dialog.setHeaderText("File Error");
-            dialog.setContentText("Couldn't open set.");
-            dialog.showAndWait();
-            return;
         }
         setFile = set;
         JSONObject json = new JSONObject(new String(buf));
@@ -962,8 +1052,7 @@ public class YGOProCardMakerController implements Initializable {
         });
     }
 
-    @FXML
-    private void exportSet() {
+    private void exportSet() throws ClassNotFoundException, SQLException, IOException {
         Connection conn = null;
         Statement stmt = null;
         try {
@@ -1024,64 +1113,37 @@ public class YGOProCardMakerController implements Initializable {
             conn.commit();
             stmt.close();
             conn.close();
-            Alert dialog = new Alert(Alert.AlertType.INFORMATION);
-            dialog.setHeaderText(null);
-            dialog.setContentText("Set installed successfully!");
-            dialog.showAndWait();
-        } catch (ClassNotFoundException ex) {
-            Alert dialog = new Alert(Alert.AlertType.ERROR);
-            dialog.setHeaderText("Card Database Error");
-            dialog.setContentText("SQLite JDBC is not installed.");
-            dialog.showAndWait();
-        } catch (SQLException | NumberFormatException | IOException ex) {
-            Alert dialog = new Alert(Alert.AlertType.ERROR);
-            dialog.setHeaderText("Card Database Error");
-            dialog.setContentText("Couldn't install set in card database.");
-            dialog.showAndWait();
+        } catch (SQLException | IOException ex) {
             try {
                 if (conn != null) {
                     conn.rollback();
                 }
             } catch (SQLException ex1) {
-                dialog = new Alert(Alert.AlertType.ERROR);
-                dialog.setHeaderText("Card Database Error");
-                dialog.setContentText("Rollback error.");
-                dialog.showAndWait();
+                throw ex1;
             }
+            throw ex;
         } finally {
             try {
                 if (stmt != null && conn != null && !stmt.isClosed() && !conn.isClosed()) {
                     stmt.close();
                 }
             } catch (SQLException ex) {
-                Alert dialog = new Alert(Alert.AlertType.ERROR);
-                dialog.setHeaderText("Card Database Error");
-                dialog.setContentText("Couldn't cancel operation in card database.");
-                dialog.showAndWait();
                 try {
                     if (conn != null) {
                         conn.close();
                     }
                 } catch (SQLException ex1) {
-                    dialog = new Alert(Alert.AlertType.ERROR);
-                    dialog.setHeaderText("Card Database Error");
-                    dialog.setContentText("Couldn't close card database correctly.");
-                    dialog.showAndWait();
+                    throw ex1;
                 }
+                throw ex;
             }
         }
     }
 
-    @FXML
     private void addArchtype() {
         archtypeData.add(new Archtype(archtypeName.getText())
                 .setCode(archtypeCode.getText()));
         ygoproArchtype.getItems().add(archtypeName.getText());
         ygoproSecondaryArchtype.getItems().add(archtypeName.getText());
-    }
-
-    @FXML
-    private void quit() {
-        System.exit(0);
     }
 }
