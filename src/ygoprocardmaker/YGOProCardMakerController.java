@@ -46,17 +46,14 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import ygoprocardmaker.data.Archtype;
 import ygoprocardmaker.data.Card;
-import ygoprocardmaker.enumerate.CardAttribute;
 import static ygoprocardmaker.enumerate.CardAttribute.*;
-import ygoprocardmaker.enumerate.CardFormat;
 import static ygoprocardmaker.enumerate.CardLevelRank.*;
 import static ygoprocardmaker.enumerate.CardMonsterType.*;
 import static ygoprocardmaker.enumerate.CardType.*;
 import static ygoprocardmaker.enumerate.CardFormat.*;
-import ygoprocardmaker.enumerate.CardMonsterType;
-import ygoprocardmaker.enumerate.CardType;
 import ygoprocardmaker.util.FileUtils;
 import ygoprocardmaker.util.ImageUtils;
+import ygoprocardmaker.util.YGOProUtils;
 
 /**
  *
@@ -965,18 +962,6 @@ public class YGOProCardMakerController implements Initializable {
         });
     }
 
-    private String computeArchtypeCode(Card card) {
-        if (archtypeData.isEmpty()) {
-            return "0";
-        }
-        String code = archtypeData.get(archtypeData.indexOf(new Archtype(card.getArchtype()))).getCode() + archtypeData.get(archtypeData.indexOf(new Archtype(card.getArchtype()))).getCode();
-        if (code.equals("")) {
-            return "0";
-        } else {
-            return code;
-        }
-    }
-
     @FXML
     private void exportSet() {
         Connection conn = null;
@@ -988,37 +973,37 @@ public class YGOProCardMakerController implements Initializable {
             stmt = conn.createStatement();
             for (Card card : cardData) {
                 stmt.executeUpdate("INSERT OR REPLACE INTO \"datas\" VALUES (\""
-                        + card.getSerial() + "\",\""
-                        + CardFormat.code(card.getFormat()) + "\",\""
-                        + (card.getAlias().equals("") ? "0" : card.getAlias()) + "\",\""
-                        + computeArchtypeCode(card) + "\",\""
-                        + CardType.code(card.getType(), card.getSubType(), card.getSubSubType()) + "\",\""
-                        + (card.getAtk().equals("") ? "0" : card.getAtk()) + "\",\""
-                        + (card.getDef().equals("") ? "0" : card.getDef()) + "\",\""
-                        + Integer.parseInt(card.getLevelRank().equals("") ? "0" : card.getLevelRank()) + "\",\""
-                        + CardMonsterType.code(card.getMonsterType()) + "\",\""
-                        + CardAttribute.code(card.getAttribute()) + "\",\""
-                        + "0" + "\");");
+                        + YGOProUtils.computeSerial(card) + "\",\""
+                        + YGOProUtils.computeFormat(card) + "\",\""
+                        + YGOProUtils.computeAlias(card) + "\",\""
+                        + YGOProUtils.computeArchtype(card, archtypeData) + "\",\""
+                        + YGOProUtils.computeType(card) + "\",\""
+                        + YGOProUtils.computeATK(card) + "\",\""
+                        + YGOProUtils.computeDEF(card) + "\",\""
+                        + YGOProUtils.computeLevelRank(card) + "\",\""
+                        + YGOProUtils.computeMonsterType(card) + "\",\""
+                        + YGOProUtils.computeMonsterAttribute(card) + "\",\""
+                        + YGOProUtils.computeEffectCategories(card) + "\");");
                 stmt.executeUpdate("INSERT OR REPLACE INTO \"texts\" VALUES (\""
-                        + card.getSerial() + "\",\""
-                        + card.getName() + "\",\""
-                        + card.getLoreEffect() + "\",\""
-                        + (card.getString1().equals("") ? " " : card.getString1()) + "\",\""
-                        + (card.getString2().equals("") ? " " : card.getString2()) + "\",\""
-                        + (card.getString3().equals("") ? " " : card.getString3()) + "\",\""
-                        + (card.getString4().equals("") ? " " : card.getString4()) + "\",\""
-                        + (card.getString5().equals("") ? " " : card.getString5()) + "\",\""
-                        + (card.getString6().equals("") ? " " : card.getString6()) + "\",\""
-                        + (card.getString7().equals("") ? " " : card.getString7()) + "\",\""
-                        + (card.getString8().equals("") ? " " : card.getString8()) + "\",\""
-                        + (card.getString9().equals("") ? " " : card.getString9()) + "\",\""
-                        + (card.getString10().equals("") ? " " : card.getString10()) + "\",\""
-                        + (card.getString11().equals("") ? " " : card.getString11()) + "\",\""
-                        + (card.getString12().equals("") ? " " : card.getString12()) + "\",\""
-                        + (card.getString13().equals("") ? " " : card.getString13()) + "\",\""
-                        + (card.getString14().equals("") ? " " : card.getString14()) + "\",\""
-                        + (card.getString15().equals("") ? " " : card.getString15()) + "\",\""
-                        + (card.getString16().equals("") ? " " : card.getString16()) + "\");");
+                        + YGOProUtils.computeSerial(card) + "\",\""
+                        + YGOProUtils.computeName(card) + "\",\""
+                        + YGOProUtils.computeLoreEffect(card) + "\",\""
+                        + YGOProUtils.computeString1(card) + "\",\""
+                        + YGOProUtils.computeString2(card) + "\",\""
+                        + YGOProUtils.computeString3(card) + "\",\""
+                        + YGOProUtils.computeString4(card) + "\",\""
+                        + YGOProUtils.computeString5(card) + "\",\""
+                        + YGOProUtils.computeString6(card) + "\",\""
+                        + YGOProUtils.computeString7(card) + "\",\""
+                        + YGOProUtils.computeString8(card) + "\",\""
+                        + YGOProUtils.computeString9(card) + "\",\""
+                        + YGOProUtils.computeString10(card) + "\",\""
+                        + YGOProUtils.computeString11(card) + "\",\""
+                        + YGOProUtils.computeString12(card) + "\",\""
+                        + YGOProUtils.computeString13(card) + "\",\""
+                        + YGOProUtils.computeString14(card) + "\",\""
+                        + YGOProUtils.computeString15(card) + "\",\""
+                        + YGOProUtils.computeString16(card) + "\");");
                 if (!card.getType().equals("Monster") || !card.getSubType().equals("Normal")) {
                     File script = new File("script" + File.separator + "c" + card.getSerial() + ".lua");
                     try (FileWriter file = new FileWriter(script)) {
