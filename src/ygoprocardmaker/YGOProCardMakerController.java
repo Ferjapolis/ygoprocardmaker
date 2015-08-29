@@ -11,7 +11,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 import javafx.collections.FXCollections;
@@ -22,7 +21,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
@@ -912,7 +910,7 @@ public class YGOProCardMakerController implements Initializable {
         ygoproString14.setText(card.getString14());
         ygoproString15.setText(card.getString15());
         ygoproString16.setText(card.getString16());
-        scriptEditor.getEngine().executeScript("editor.setValue('" + card.getScript().replace("\n", "\\n") + "');");
+        scriptEditor.getEngine().executeScript("editor.setValue('" + card.getScript().replace("\n", "\\n") + "', -1);");
         hasPicture = card.getPicture() != null;
         if (hasPicture) {
             cardPicture.setImage(card.getPicture());
@@ -999,7 +997,7 @@ public class YGOProCardMakerController implements Initializable {
         ygoproString14.setText("");
         ygoproString15.setText("");
         ygoproString16.setText("");
-        scriptEditor.getEngine().executeScript("editor.setValue('');");
+        scriptEditor.getEngine().executeScript("editor.setValue('', -1);");
         cardPicture.setImage(new Image(getClass().getResourceAsStream("resource/pics/unknown.png")));
         hasPicture = false;
         Card card = new Card(currentCardId);
