@@ -25,8 +25,8 @@
                             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                           </columnConstraints>
                           <rowConstraints>
-                            <RowConstraints maxHeight="264.0" minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
-                            <RowConstraints maxHeight="507.0" minHeight="10.0" prefHeight="499.0" vgrow="SOMETIMES" />
+                            <RowConstraints maxHeight="264.0" minHeight="10.0" prefHeight="41.0" vgrow="SOMETIMES" />
+                            <RowConstraints maxHeight="507.0" minHeight="10.0" prefHeight="502.0" vgrow="SOMETIMES" />
                           </rowConstraints>
                            <children>
                               <Accordion fx:id="cardEditorAccordion" prefHeight="539.0" prefWidth="582.0" GridPane.rowIndex="1">
@@ -326,6 +326,7 @@
                               <TextField fx:id="archtypeCode" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                            </children>
                         </GridPane>
+                        <Button fx:id="deleteArchtypeButton" layoutX="290.0" layoutY="371.0" mnemonicParsing="false" onAction="#handleDeleteArchtypeButton" prefHeight="25.0" prefWidth="120.0" text="Delete Archtype" />
                      </children>
                   </Pane>
                </content></Tab>

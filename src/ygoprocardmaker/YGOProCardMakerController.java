@@ -12,6 +12,8 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ResourceBundle;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -21,6 +23,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
@@ -306,6 +309,9 @@ public class YGOProCardMakerController implements Initializable {
     @FXML
     private TableColumn<Archtype, String> archtypeCodeColumn;
 
+    @FXML
+    private Button deleteArchtypeButton;
+
     // Card Table
     @FXML
     private TableView<Card> cardTable;
@@ -382,6 +388,8 @@ public class YGOProCardMakerController implements Initializable {
 
     private File setFile;
 
+    final private static Pattern POSITIVE_INTEGER = Pattern.compile("^[0-9]*([,]{1}[0-9]{0,2}){0,1}$");
+
     public YGOProCardMakerController() {
         currentCardId = 1;
         currentCardType = "Monster";
@@ -400,6 +408,11 @@ public class YGOProCardMakerController implements Initializable {
         initializeCardTable();
         initializeMenu();
         cardEditorAccordion.setExpandedPane(cardInfoPane);
+    }
+
+    private static boolean isPositiveInteger(String input) {
+        Matcher matcher = POSITIVE_INTEGER.matcher(input);
+        return matcher.matches();
     }
 
     @FXML
@@ -460,7 +473,40 @@ public class YGOProCardMakerController implements Initializable {
 
     @FXML
     private void handleAddArchtypeButton() {
-        addArchtype();
+        if (archtypeName.getText().equals("")) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Invalid Archtype Name");
+            alert.setHeaderText(null);
+            alert.setContentText("Archtype name cannot not be empty.");
+            alert.showAndWait();
+        } else if (archtypeCode.getText().equals("")) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Invalid Archtype Code");
+            alert.setHeaderText(null);
+            alert.setContentText("Archtype code cannot not be empty.");
+            alert.showAndWait();
+        } else if (!isPositiveInteger(archtypeCode.getText())) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Invalid Archtype Code");
+            alert.setHeaderText(null);
+            alert.setContentText("Archtype code must be a positive integer.");
+            alert.showAndWait();
+        } else {
+            addArchtype();
+        }
+    }
+
+    @FXML
+    private void handleDeleteArchtypeButton() {
+        Alert alert = new Alert(AlertType.CONFIRMATION);
+        alert.setTitle("Delete Archtype");
+        alert.setHeaderText(null);
+        alert.setContentText("Every card will lose this archtype!\nAre you ok with this?");
+        ButtonType buttonTypeDelete = new ButtonType("Delete");
+        alert.getButtonTypes().setAll(buttonTypeDelete, new ButtonType("Cancel"));
+        if (alert.showAndWait().get() == buttonTypeDelete) {
+            deleteArchtype(archtypeData.get(archtypeTable.getSelectionModel().getSelectedIndex()));
+        }
     }
 
     @FXML
@@ -627,6 +673,7 @@ public class YGOProCardMakerController implements Initializable {
         archtypeNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         archtypeCodeColumn.setCellValueFactory(new PropertyValueFactory<>("code"));
         archtypeTable.setItems(archtypeData);
+        deleteArchtypeButton.setDisable(true);
     }
 
     private void initializeMenu() {
@@ -1036,6 +1083,7 @@ public class YGOProCardMakerController implements Initializable {
         setFile = null;
         cardData.clear();
         archtypeData.clear();
+        deleteArchtypeButton.setDisable(true);
         ygoproArchtype.getItems().setAll(EMPTY);
         ygoproArchtype.getSelectionModel().selectFirst();
         ygoproSecondaryArchtype.getItems().setAll(EMPTY);
@@ -1062,14 +1110,20 @@ public class YGOProCardMakerController implements Initializable {
         openCard(cardData.get(0));
         cardTable.getSelectionModel().select(0);
         archtypeData.clear();
+        ygoproArchtype.getItems().clear();
+        ygoproSecondaryArchtype.getItems().clear();
         JSONArray archtypes = json.getJSONArray("archtypes");
         for (int i = 0; i < archtypes.length(); i++) {
-            archtypeData.add(Archtype.fromJSON(archtypes.getJSONObject(i)));
+            Archtype archtype = Archtype.fromJSON(archtypes.getJSONObject(i));
+            if (!archtype.getName().equals("") && isPositiveInteger(archtype.getCode())) {
+                archtypeData.add(archtype);
+            }
         }
         archtypeData.stream().forEach(archtype -> {
-            ygoproSecondaryArchtype.getItems().add(archtype.getName());
             ygoproArchtype.getItems().add(archtype.getName());
+            ygoproSecondaryArchtype.getItems().add(archtype.getName());
         });
+        deleteArchtypeButton.setDisable(archtypeData.isEmpty());
     }
 
     private void exportSet() throws ClassNotFoundException, SQLException, IOException {
@@ -1165,5 +1219,31 @@ public class YGOProCardMakerController implements Initializable {
                 .setCode(archtypeCode.getText()));
         ygoproArchtype.getItems().add(archtypeName.getText());
         ygoproSecondaryArchtype.getItems().add(archtypeName.getText());
+        if (deleteArchtypeButton.isDisabled()) {
+            deleteArchtypeButton.setDisable(false);
+        }
+    }
+
+    private void deleteArchtype(Archtype archtype) {
+        if (ygoproArchtype.getSelectionModel().getSelectedItem().equals(archtype.getName())) {
+            ygoproArchtype.getSelectionModel().selectFirst();
+        }
+        if (ygoproSecondaryArchtype.getSelectionModel().getSelectedItem().equals(archtype.getName())) {
+            ygoproSecondaryArchtype.getSelectionModel().selectFirst();
+        }
+        archtypeData.remove(archtype);
+        ygoproArchtype.getItems().remove(archtype.getName());
+        ygoproSecondaryArchtype.getItems().remove(archtype.getName());
+        cardData.forEach(c -> {
+            if (c.getArchtype().equals(archtype.getName())) {
+                c.setArchtype("");
+            }
+            if (c.getSecondaryArchtype().equals(archtype.getName())) {
+                c.setSecondaryArchtype("");
+            }
+        });
+        if (archtypeData.isEmpty()) {
+            deleteArchtypeButton.setDisable(true);
+        }
     }
 }
