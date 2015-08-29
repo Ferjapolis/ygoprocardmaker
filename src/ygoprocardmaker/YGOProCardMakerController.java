@@ -3,7 +3,6 @@ package ygoprocardmaker;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -12,9 +11,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -23,6 +21,9 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
@@ -45,6 +46,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javax.imageio.ImageIO;
 import netscape.javascript.JSObject;
+import org.controlsfx.control.Notifications;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import ygoprocardmaker.data.Archtype;
@@ -405,6 +407,10 @@ public class YGOProCardMakerController implements Initializable {
     @FXML
     private void handleSaveCardButton() {
         saveCard(getCardById(), true);
+        Notifications.create()
+                .title("Save Card")
+                .text("Card successfully saved!")
+                .show();
     }
 
     @FXML
@@ -414,7 +420,15 @@ public class YGOProCardMakerController implements Initializable {
 
     @FXML
     private void handleDeleteCardButton() {
-        deleteCard();
+        Alert alert = new Alert(AlertType.CONFIRMATION);
+        alert.setTitle("Delete Card");
+        alert.setHeaderText(null);
+        alert.setContentText("All card data will be lost!\nAre you ok with this?");
+        ButtonType buttonTypeDelete = new ButtonType("Delete");
+        alert.getButtonTypes().setAll(buttonTypeDelete, new ButtonType("Cancel"));
+        if (alert.showAndWait().get() == buttonTypeDelete) {
+            deleteCard();
+        }
     }
 
     @FXML
@@ -494,6 +508,10 @@ public class YGOProCardMakerController implements Initializable {
         }
         try {
             saveSet(set);
+            Notifications.create()
+                    .title("Save Set")
+                    .text("Set successfully saved!")
+                    .show();
         } catch (IOException ex) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setHeaderText("File Error");
@@ -516,6 +534,10 @@ public class YGOProCardMakerController implements Initializable {
         }
         try {
             saveSet(set);
+            Notifications.create()
+                    .title("Save Set")
+                    .text("Set successfully saved!")
+                    .show();
         } catch (IOException ex) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setHeaderText("File Error");
@@ -530,7 +552,7 @@ public class YGOProCardMakerController implements Initializable {
             exportSet();
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setHeaderText(null);
-            alert.setContentText("Set installed successfully!");
+            alert.setContentText("Set exported successfully!");
             alert.showAndWait();
         } catch (ClassNotFoundException ex) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
