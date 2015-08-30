@@ -11,7 +11,10 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -416,17 +419,13 @@ public class YGOProCardMakerController implements Initializable {
     }
 
     @FXML
-    private void handleSaveCardButton() {
-        saveCard(getCardById(), true);
-        Notifications.create()
-                .title("Save Card")
-                .text("Card successfully saved!")
-                .show();
-    }
-
-    @FXML
     private void handleNewCardButton() {
+        saveCard(getCardById(), true);
         newCard();
+        Notifications.create()
+                .title("New Card")
+                .text("New card created successfully!")
+                .show();
     }
 
     @FXML
@@ -434,11 +433,15 @@ public class YGOProCardMakerController implements Initializable {
         Alert alert = new Alert(AlertType.CONFIRMATION);
         alert.setTitle("Delete Card");
         alert.setHeaderText(null);
-        alert.setContentText("All card data will be lost!\nAre you ok with this?");
+        alert.setContentText("All card data will be lost!");
         ButtonType buttonTypeDelete = new ButtonType("Delete");
         alert.getButtonTypes().setAll(buttonTypeDelete, new ButtonType("Cancel"));
         if (alert.showAndWait().get() == buttonTypeDelete) {
             deleteCard();
+            Notifications.create()
+                    .title("Delete Card")
+                    .text("Card deleted successfully!")
+                    .show();
         }
     }
 
@@ -493,6 +496,10 @@ public class YGOProCardMakerController implements Initializable {
             alert.showAndWait();
         } else {
             addArchtype();
+            Notifications.create()
+                    .title("Add Archtype")
+                    .text("Archtype added successfully!")
+                    .show();
         }
     }
 
@@ -501,21 +508,108 @@ public class YGOProCardMakerController implements Initializable {
         Alert alert = new Alert(AlertType.CONFIRMATION);
         alert.setTitle("Delete Archtype");
         alert.setHeaderText(null);
-        alert.setContentText("Every card will lose this archtype!\nAre you ok with this?");
+        alert.setContentText("Every card with this archtype, will lose it!\n"
+                + "Do you wish to continue?");
         ButtonType buttonTypeDelete = new ButtonType("Delete");
         alert.getButtonTypes().setAll(buttonTypeDelete, new ButtonType("Cancel"));
         if (alert.showAndWait().get() == buttonTypeDelete) {
             deleteArchtype(archtypeData.get(archtypeTable.getSelectionModel().getSelectedIndex()));
+            Notifications.create()
+                    .title("Delete Archtype")
+                    .text("Archtype deleted successfully!")
+                    .show();
         }
     }
 
     @FXML
     private void handleNewSetMenuItem() {
+        if (true) {
+            Alert alert = new Alert(AlertType.CONFIRMATION);
+            alert.setTitle("New Set");
+            alert.setHeaderText(null);
+            alert.setContentText("Do you wish to save before creating a new set?\n"
+                    + "If you don't, changes will be lost.");
+            ButtonType buttonTypeSaveNew = new ButtonType("Save & New");
+            ButtonType buttonTypeCancel = new ButtonType("Cancel");
+            alert.getButtonTypes().setAll(buttonTypeSaveNew, new ButtonType("New"), buttonTypeCancel);
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.get() == buttonTypeSaveNew) {
+                try {
+                    File set = setFile;
+                    if (setFile == null) {
+                        FileChooser fileChooser = new FileChooser();
+                        fileChooser.setTitle("Save Card Set");
+                        fileChooser.getExtensionFilters().addAll(new ExtensionFilter("YGOProCardMakerSet (*.ygopcms)", "*.ygopcms"));
+                        set = fileChooser.showSaveDialog(null);
+                        if (set == null) {
+                            return;
+                        }
+                    }
+                    saveCard(getCardById(), true);
+                    saveSet(set);
+                    Notifications.create()
+                            .title("Save Set")
+                            .text("Set successfully saved!")
+                            .show();
+                } catch (IOException ex) {
+                    alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setHeaderText("File Error");
+                    alert.setContentText("Couldn't save set.");
+                    alert.showAndWait();
+                    return;
+                }
+            } else if (result.get() == buttonTypeCancel) {
+                return;
+            }
+        }
         newSet();
+        Notifications.create()
+                    .title("New Set")
+                    .text("Set created successfully!")
+                    .show();
     }
 
     @FXML
     private void handleOpenSetMenuItem() {
+        if (true) {
+            Alert alert = new Alert(AlertType.CONFIRMATION);
+            alert.setTitle("Open Set");
+            alert.setHeaderText(null);
+            alert.setContentText("Do you wish to save before opening a new set?\n"
+                    + "If you don't, changes will be lost.");
+            ButtonType buttonTypeSaveOpen = new ButtonType("Save & Open");
+            ButtonType buttonTypeCancel = new ButtonType("Cancel");
+            alert.getButtonTypes().setAll(buttonTypeSaveOpen, new ButtonType("Open"), buttonTypeCancel);
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.get() == buttonTypeSaveOpen) {
+                try {
+                    File set = setFile;
+                    if (setFile == null) {
+                        FileChooser fileChooser = new FileChooser();
+                        fileChooser.setTitle("Save Card Set");
+                        fileChooser.getExtensionFilters().addAll(new ExtensionFilter("YGOProCardMakerSet (*.ygopcms)", "*.ygopcms"));
+                        set = fileChooser.showSaveDialog(null);
+                        if (set == null) {
+                            return;
+                        }
+                    }
+                    saveCard(getCardById(), true);
+                    saveSet(set);
+                    Notifications.create()
+                            .title("Save Set")
+                            .text("Set successfully saved!")
+                            .show();
+                } catch (IOException ex) {
+                    alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setHeaderText("File Error");
+                    alert.setContentText("Couldn't save set.");
+                    alert.showAndWait();
+                    return;
+                }
+            } else if (result.get() == buttonTypeCancel) {
+                return;
+            }
+        }
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Card Set");
         fileChooser.getExtensionFilters().addAll(new ExtensionFilter("YGOProCardMakerSet (*.ygopcms)", "*.ygopcms"));
@@ -525,6 +619,10 @@ public class YGOProCardMakerController implements Initializable {
         }
         try {
             openSet(set);
+            Notifications.create()
+                    .title("Open Card Set")
+                    .text("Set opened successfully!")
+                    .show();
         } catch (IOException ex) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setHeaderText("File Error");
@@ -551,6 +649,7 @@ public class YGOProCardMakerController implements Initializable {
             set = setFile;
         }
         try {
+            saveCard(getCardById(), true);
             saveSet(set);
             Notifications.create()
                     .title("Save Set")
@@ -577,10 +676,11 @@ public class YGOProCardMakerController implements Initializable {
             set = new File(set.getPath() + ".ygopcms");
         }
         try {
+            saveCard(getCardById(), true);
             saveSet(set);
             Notifications.create()
                     .title("Save Set")
-                    .text("Set successfully saved!")
+                    .text("Set saved successfully!")
                     .show();
         } catch (IOException ex) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -594,10 +694,10 @@ public class YGOProCardMakerController implements Initializable {
     private void handleExportSetMenuItem() {
         try {
             exportSet();
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setHeaderText(null);
-            alert.setContentText("Set exported successfully!");
-            alert.showAndWait();
+            Notifications.create()
+                    .title("Export Set")
+                    .text("Set exported successfully!")
+                    .show();
         } catch (ClassNotFoundException ex) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setHeaderText("Card Database Error");

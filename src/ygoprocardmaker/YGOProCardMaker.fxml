@@ -267,7 +267,6 @@
                               </Accordion>
                               <ToolBar prefHeight="40.0" prefWidth="318.0">
                                 <items>
-                                  <Button mnemonicParsing="false" onAction="#handleSaveCardButton" prefHeight="25.0" prefWidth="85.0" text="Save Card" />
                                     <Button mnemonicParsing="false" onAction="#handleNewCardButton" text="New Card" />
                                     <Button mnemonicParsing="false" onAction="#handleDeleteCardButton" text="Delete Card" />
                                 </items>
