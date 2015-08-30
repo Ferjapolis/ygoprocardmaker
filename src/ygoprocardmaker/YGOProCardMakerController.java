@@ -413,14 +413,26 @@ public class YGOProCardMakerController implements Initializable {
         cardEditorAccordion.setExpandedPane(cardInfoPane);
     }
 
-    private static boolean isPositiveInteger(String input) {
-        Matcher matcher = POSITIVE_INTEGER.matcher(input);
-        return matcher.matches();
+    @FXML
+    private void handleSaveCardButton() {
+        if (cardChanged()) {
+            saveCard(getCardById(), true);
+            Notifications.create()
+                    .title("Save Card")
+                    .text("Card saved successfully!")
+                    .show();
+        }
     }
 
     @FXML
     private void handleNewCardButton() {
-        saveCard(getCardById(), true);
+        if (cardChanged()) {
+            saveCard(getCardById(), true);
+            Notifications.create()
+                    .title("Save Card")
+                    .text("Card saved successfully!")
+                    .show();
+        }
         newCard();
         Notifications.create()
                 .title("New Card")
@@ -433,7 +445,8 @@ public class YGOProCardMakerController implements Initializable {
         Alert alert = new Alert(AlertType.CONFIRMATION);
         alert.setTitle("Delete Card");
         alert.setHeaderText(null);
-        alert.setContentText("All card data will be lost!");
+        alert.setContentText("All card data will be lost!\n"
+                + "Do you wish to continue?");
         ButtonType buttonTypeDelete = new ButtonType("Delete");
         alert.getButtonTypes().setAll(buttonTypeDelete, new ButtonType("Cancel"));
         if (alert.showAndWait().get() == buttonTypeDelete) {
@@ -523,7 +536,7 @@ public class YGOProCardMakerController implements Initializable {
 
     @FXML
     private void handleNewSetMenuItem() {
-        if (true) {
+        if (setChanged()) {
             Alert alert = new Alert(AlertType.CONFIRMATION);
             alert.setTitle("New Set");
             alert.setHeaderText(null);
@@ -545,7 +558,13 @@ public class YGOProCardMakerController implements Initializable {
                             return;
                         }
                     }
-                    saveCard(getCardById(), true);
+                    if (cardChanged()) {
+                        saveCard(getCardById(), true);
+                        Notifications.create()
+                                .title("Save Card")
+                                .text("Card saved successfully!")
+                                .show();
+                    }
                     saveSet(set);
                     Notifications.create()
                             .title("Save Set")
@@ -564,14 +583,14 @@ public class YGOProCardMakerController implements Initializable {
         }
         newSet();
         Notifications.create()
-                    .title("New Set")
-                    .text("Set created successfully!")
-                    .show();
+                .title("New Set")
+                .text("Set created successfully!")
+                .show();
     }
 
     @FXML
     private void handleOpenSetMenuItem() {
-        if (true) {
+        if (setChanged()) {
             Alert alert = new Alert(AlertType.CONFIRMATION);
             alert.setTitle("Open Set");
             alert.setHeaderText(null);
@@ -593,7 +612,13 @@ public class YGOProCardMakerController implements Initializable {
                             return;
                         }
                     }
-                    saveCard(getCardById(), true);
+                    if (cardChanged()) {
+                        saveCard(getCardById(), true);
+                        Notifications.create()
+                                .title("Save Card")
+                                .text("Card saved successfully!")
+                                .show();
+                    }
                     saveSet(set);
                     Notifications.create()
                             .title("Save Set")
@@ -649,7 +674,13 @@ public class YGOProCardMakerController implements Initializable {
             set = setFile;
         }
         try {
-            saveCard(getCardById(), true);
+            if (cardChanged()) {
+                saveCard(getCardById(), true);
+                Notifications.create()
+                        .title("Save Card")
+                        .text("Card saved successfully!")
+                        .show();
+            }
             saveSet(set);
             Notifications.create()
                     .title("Save Set")
@@ -676,7 +707,13 @@ public class YGOProCardMakerController implements Initializable {
             set = new File(set.getPath() + ".ygopcms");
         }
         try {
-            saveCard(getCardById(), true);
+            if (cardChanged()) {
+                saveCard(getCardById(), true);
+                Notifications.create()
+                        .title("Save Card")
+                        .text("Card saved successfully!")
+                        .show();
+            }
             saveSet(set);
             Notifications.create()
                     .title("Save Set")
@@ -719,6 +756,19 @@ public class YGOProCardMakerController implements Initializable {
     @FXML
     private void handleQuitMenuItem() {
         System.exit(0);
+    }
+
+    private static boolean isPositiveInteger(String input) {
+        Matcher matcher = POSITIVE_INTEGER.matcher(input);
+        return matcher.matches();
+    }
+
+    private boolean cardChanged() {
+        return true;
+    }
+
+    private boolean setChanged() {
+        return true;
     }
 
     private void initializeCardInfo() {
@@ -1066,7 +1116,7 @@ public class YGOProCardMakerController implements Initializable {
         }
     }
 
-    private int getLowestUnusedId() {
+    private int getGreatestUnusedId() {
         if (cardData == null || cardData.isEmpty()) {
             return 1;
         }
@@ -1080,7 +1130,6 @@ public class YGOProCardMakerController implements Initializable {
     }
 
     private void newCard() {
-        currentCardId = getLowestUnusedId();
         cardName.setText("");
         cardType.setValue("Monster");
         cardSubType.setValue("Normal");
@@ -1147,7 +1196,7 @@ public class YGOProCardMakerController implements Initializable {
         scriptEditor.getEngine().executeScript("editor.setValue('', -1);");
         cardPicture.setImage(new Image(getClass().getResourceAsStream("resource/pics/unknown.png")));
         hasPicture = false;
-        Card card = new Card(currentCardId);
+        Card card = new Card(getGreatestUnusedId());
         cardData.add(card);
         saveCard(card, true);
         cardTable.getSelectionModel().select(card);
@@ -1157,11 +1206,10 @@ public class YGOProCardMakerController implements Initializable {
         Card card = getCardById();
         int index = cardData.indexOf(card);
         cardData.remove(card);
-        cardTable.getSelectionModel().select(index == cardData.size() ? cardData.size() - 1 : index);
         if (cardData.size() == 0) {
             newCard();
         } else {
-            openCard(cardTable.getSelectionModel().getSelectedItem());
+            cardTable.getSelectionModel().select(index == cardData.size() ? cardData.size() - 1 : index);
         }
     }
 
@@ -1207,7 +1255,6 @@ public class YGOProCardMakerController implements Initializable {
         for (int i = 0; i < cards.length(); i++) {
             cardData.add(Card.fromJSON(cards.getJSONObject(i)));
         }
-        openCard(cardData.get(0));
         cardTable.getSelectionModel().select(0);
         archtypeData.clear();
         ygoproArchtype.getItems().clear();
