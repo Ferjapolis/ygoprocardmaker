@@ -13,6 +13,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -58,6 +60,7 @@ import static ygoprocardmaker.enumerate.CardLevelRank.*;
 import static ygoprocardmaker.enumerate.CardMonsterType.*;
 import static ygoprocardmaker.enumerate.CardType.*;
 import static ygoprocardmaker.enumerate.CardFormat.*;
+import ygoprocardmaker.exception.InvalidFieldException;
 import ygoprocardmaker.exception.InvalidPictureException;
 import ygoprocardmaker.util.FileUtils;
 import ygoprocardmaker.util.ImageUtils;
@@ -415,7 +418,16 @@ public class YGOProCardMakerController implements Initializable {
     @FXML
     private void handleSaveCardButton() {
         if (cardChanged()) {
-            saveCard(getCardById(), true);
+            try {
+                saveCard(getCardById(), true);
+            } catch (InvalidFieldException ex) {
+                Alert alert = new Alert(AlertType.WARNING);
+                alert.setTitle("Save Card");
+                alert.setHeaderText(null);
+                alert.setContentText(ex.getMessage());
+                alert.showAndWait();
+                return;
+            }
             Notifications.create()
                     .title("Save Card")
                     .text("Card saved successfully!")
@@ -436,7 +448,16 @@ public class YGOProCardMakerController implements Initializable {
             alert.getButtonTypes().setAll(buttonTypeNewSave, new ButtonType("New"), buttonTypeCancel);
             Optional<ButtonType> result = alert.showAndWait();
             if (result.get() == buttonTypeNewSave) {
-                saveCard(getCardById(), true);
+                try {
+                    saveCard(getCardById(), true);
+                } catch (InvalidFieldException ex) {
+                    alert = new Alert(AlertType.WARNING);
+                    alert.setTitle("Save Card");
+                    alert.setHeaderText(null);
+                    alert.setContentText(ex.getMessage());
+                    alert.showAndWait();
+                    return;
+                }
                 Notifications.create()
                         .title("Save Card")
                         .text("Card saved successfully!")
@@ -445,7 +466,10 @@ public class YGOProCardMakerController implements Initializable {
                 return;
             }
         }
-        newCard();
+        try {
+            newCard();
+        } catch (InvalidFieldException ex) { // will never happen
+        }
         Notifications.create()
                 .title("New Card")
                 .text("New card created successfully!")
@@ -462,7 +486,10 @@ public class YGOProCardMakerController implements Initializable {
         ButtonType buttonTypeDelete = new ButtonType("Delete");
         alert.getButtonTypes().setAll(buttonTypeDelete, new ButtonType("Cancel"));
         if (alert.showAndWait().get() == buttonTypeDelete) {
-            deleteCard();
+            try {
+                deleteCard();
+            } catch (InvalidFieldException ex) { // will never happen
+            }
             Notifications.create()
                     .title("Delete Card")
                     .text("Card deleted successfully!")
@@ -573,7 +600,16 @@ public class YGOProCardMakerController implements Initializable {
                         }
                     }
                     if (cardChanged()) {
-                        saveCard(getCardById(), true);
+                        try {
+                            saveCard(getCardById(), true);
+                        } catch (InvalidFieldException ex) {
+                            alert = new Alert(AlertType.WARNING);
+                            alert.setTitle("Save Card");
+                            alert.setHeaderText(null);
+                            alert.setContentText(ex.getMessage());
+                            alert.showAndWait();
+                            return;
+                        }
                         Notifications.create()
                                 .title("Save Card")
                                 .text("Card saved successfully!")
@@ -628,7 +664,16 @@ public class YGOProCardMakerController implements Initializable {
                         }
                     }
                     if (cardChanged()) {
-                        saveCard(getCardById(), true);
+                        try {
+                            saveCard(getCardById(), true);
+                        } catch (InvalidFieldException ex) {
+                            alert = new Alert(AlertType.WARNING);
+                            alert.setTitle("Save Card");
+                            alert.setHeaderText(null);
+                            alert.setContentText(ex.getMessage());
+                            alert.showAndWait();
+                            return;
+                        }
                         Notifications.create()
                                 .title("Save Card")
                                 .text("Card saved successfully!")
@@ -692,7 +737,16 @@ public class YGOProCardMakerController implements Initializable {
         }
         try {
             if (cardChanged()) {
-                saveCard(getCardById(), true);
+                try {
+                    saveCard(getCardById(), true);
+                } catch (InvalidFieldException ex) {
+                    Alert alert = new Alert(AlertType.WARNING);
+                    alert.setTitle("Save Card");
+                    alert.setHeaderText(null);
+                    alert.setContentText(ex.getMessage());
+                    alert.showAndWait();
+                    return;
+                }
                 Notifications.create()
                         .title("Save Card")
                         .text("Card saved successfully!")
@@ -726,7 +780,16 @@ public class YGOProCardMakerController implements Initializable {
         }
         try {
             if (cardChanged()) {
-                saveCard(getCardById(), true);
+                try {
+                    saveCard(getCardById(), true);
+                } catch (InvalidFieldException ex) {
+                    Alert alert = new Alert(AlertType.WARNING);
+                    alert.setTitle("Save Card");
+                    alert.setHeaderText(null);
+                    alert.setContentText(ex.getMessage());
+                    alert.showAndWait();
+                    return;
+                }
                 Notifications.create()
                         .title("Save Card")
                         .text("Card saved successfully!")
@@ -877,7 +940,10 @@ public class YGOProCardMakerController implements Initializable {
         });
         Card card = new Card(currentCardId);
         cardData.add(card);
-        saveCard(card, false);
+        try {
+            saveCard(card, false);
+        } catch (InvalidFieldException ex) { // will never happen
+        }
     }
 
     private void setCardSubTypes() {
@@ -995,7 +1061,17 @@ public class YGOProCardMakerController implements Initializable {
         return cardData.get(cardData.indexOf(new Card(currentCardId)));
     }
 
-    private void saveCard(Card card, boolean loaded) {
+    private void saveCard(Card card, boolean loaded) throws InvalidFieldException {
+        boolean invalidATK = !isPositiveInteger(cardATK.getText());
+        boolean invalidDEF = !isPositiveInteger(cardDEF.getText());
+        boolean invalidSerial = !isPositiveInteger(cardSerial.getText());
+        if (invalidATK || invalidDEF || invalidSerial) {
+            throw new InvalidFieldException("Invalid "
+                    + (invalidATK ? "ATK " : "")
+                    + (invalidDEF ? "DEF " : "")
+                    + (invalidSerial ? "Serial " : "") + ".\n"
+                    + "These fields must have an integer value.");
+        }
         card.setName(cardName.getText())
                 .setType(cardType.getValue())
                 .setSubType(cardSubType.getValue())
@@ -1151,7 +1227,7 @@ public class YGOProCardMakerController implements Initializable {
         return greatest + 1;
     }
 
-    private void newCard() {
+    private void newCard() throws InvalidFieldException {
         cardName.setText("");
         cardType.setValue("Monster");
         cardSubType.setValue("Normal");
@@ -1224,7 +1300,7 @@ public class YGOProCardMakerController implements Initializable {
         cardTable.getSelectionModel().select(card);
     }
 
-    private void deleteCard() {
+    private void deleteCard() throws InvalidFieldException {
         Card card = getCardById();
         int index = cardData.indexOf(card);
         cardData.remove(card);
@@ -1258,7 +1334,10 @@ public class YGOProCardMakerController implements Initializable {
         ygoproArchtype.getSelectionModel().selectFirst();
         ygoproSecondaryArchtype.getItems().setAll(EMPTY);
         ygoproSecondaryArchtype.getSelectionModel().selectFirst();
-        newCard();
+        try {
+            newCard();
+        } catch (InvalidFieldException ex) { // will never happen
+        }
     }
 
     private void openSet(File set) throws IOException {
