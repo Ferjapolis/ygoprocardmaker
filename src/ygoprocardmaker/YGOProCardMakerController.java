@@ -13,10 +13,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -65,6 +61,7 @@ import ygoprocardmaker.exception.InvalidPictureException;
 import ygoprocardmaker.util.FileUtils;
 import ygoprocardmaker.util.ImageUtils;
 import ygoprocardmaker.util.JavaFXUtils;
+import ygoprocardmaker.util.RegexUtils;
 import ygoprocardmaker.util.YGOProUtils;
 
 /**
@@ -392,9 +389,7 @@ public class YGOProCardMakerController implements Initializable {
     final private ObservableList<Archtype> archtypeData;
 
     private File setFile;
-
-    final private static Pattern POSITIVE_INTEGER = Pattern.compile("^[0-9]*([,]{1}[0-9]{0,2}){0,1}$");
-
+    
     public YGOProCardMakerController() {
         currentCardId = 1;
         currentCardType = "Monster";
@@ -542,7 +537,7 @@ public class YGOProCardMakerController implements Initializable {
             alert.setHeaderText(null);
             alert.setContentText("Archtype code cannot not be empty.");
             alert.showAndWait();
-        } else if (!isPositiveInteger(archtypeCode.getText())) {
+        } else if (!RegexUtils.isPositiveInteger(archtypeCode.getText())) {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Invalid Archtype Code");
             alert.setHeaderText(null);
@@ -843,11 +838,6 @@ public class YGOProCardMakerController implements Initializable {
         System.exit(0);
     }
 
-    private static boolean isPositiveInteger(String input) {
-        Matcher matcher = POSITIVE_INTEGER.matcher(input);
-        return matcher.matches();
-    }
-
     private boolean cardChanged() {
         return true;
     }
@@ -1062,14 +1052,14 @@ public class YGOProCardMakerController implements Initializable {
     }
 
     private void saveCard(Card card, boolean loaded) throws InvalidFieldException {
-        boolean invalidATK = !isPositiveInteger(cardATK.getText());
-        boolean invalidDEF = !isPositiveInteger(cardDEF.getText());
-        boolean invalidSerial = !isPositiveInteger(cardSerial.getText());
+        boolean invalidATK = !RegexUtils.isPositiveInteger(cardATK.getText());
+        boolean invalidDEF = !RegexUtils.isPositiveInteger(cardDEF.getText());
+        boolean invalidSerial = !RegexUtils.isPositiveInteger(cardSerial.getText());
         if (invalidATK || invalidDEF || invalidSerial) {
             throw new InvalidFieldException("Invalid "
                     + (invalidATK ? "ATK " : "")
                     + (invalidDEF ? "DEF " : "")
-                    + (invalidSerial ? "Serial " : "") + ".\n"
+                    + (invalidSerial ? "Serial " : "") + "field(s).\n"
                     + "These fields must have an integer value.");
         }
         card.setName(cardName.getText())
@@ -1363,7 +1353,7 @@ public class YGOProCardMakerController implements Initializable {
         JSONArray archtypes = json.getJSONArray("archtypes");
         for (int i = 0; i < archtypes.length(); i++) {
             Archtype archtype = Archtype.fromJSON(archtypes.getJSONObject(i));
-            if (!archtype.getName().equals("") && isPositiveInteger(archtype.getCode())) {
+            if (!archtype.getName().equals("") && RegexUtils.isPositiveInteger(archtype.getCode())) {
                 archtypeData.add(archtype);
             }
         }

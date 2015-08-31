@@ -3,6 +3,7 @@ package ygoprocardmaker.data;
 import javafx.scene.image.Image;
 import org.json.JSONObject;
 import ygoprocardmaker.util.ImageUtils;
+import ygoprocardmaker.util.RegexUtils;
 
 /**
  *
@@ -773,10 +774,10 @@ public class Card {
                 .setAttribute(json.getString("attribute"))
                 .setLevelRank(json.getString("levelRank"))
                 .setMonsterType(json.getString("monsterType"))
-                .setAtk(json.getString("atk"))
-                .setDef(json.getString("def"))
+                .setAtk(RegexUtils.isPositiveInteger(json.getString("atk")) ? json.getString("atk") : "")
+                .setDef(RegexUtils.isPositiveInteger(json.getString("def")) ? json.getString("def") : "")
                 .setLoreEffect(json.getString("loreEffect"))
-                .setSerial(json.getString("serial"))
+                .setSerial(RegexUtils.isPositiveInteger(json.getString("serial")) ? json.getString("serial") : "")
                 .setAlias(json.getString("alias"))
                 .setArchtype(json.getString("archtype"))
                 .setSecondaryArchtype(json.getString("secondaryArchtype"))
