@@ -13,8 +13,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -63,6 +61,7 @@ import static ygoprocardmaker.enumerate.CardFormat.*;
 import ygoprocardmaker.exception.InvalidPictureException;
 import ygoprocardmaker.util.FileUtils;
 import ygoprocardmaker.util.ImageUtils;
+import ygoprocardmaker.util.JavaFXUtils;
 import ygoprocardmaker.util.YGOProUtils;
 
 /**
@@ -427,11 +426,24 @@ public class YGOProCardMakerController implements Initializable {
     @FXML
     private void handleNewCardButton() {
         if (cardChanged()) {
-            saveCard(getCardById(), true);
-            Notifications.create()
-                    .title("Save Card")
-                    .text("Card saved successfully!")
-                    .show();
+            Alert alert = new Alert(AlertType.CONFIRMATION);
+            alert.setTitle("New Card");
+            alert.setHeaderText(null);
+            alert.setContentText("Do you wish to save before creating a new card?\n"
+                    + "If you don't, changes will be lost.");
+            ButtonType buttonTypeNewSave = new ButtonType("Save & New");
+            ButtonType buttonTypeCancel = new ButtonType("Cancel");
+            alert.getButtonTypes().setAll(buttonTypeNewSave, new ButtonType("New"), buttonTypeCancel);
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.get() == buttonTypeNewSave) {
+                saveCard(getCardById(), true);
+                Notifications.create()
+                        .title("Save Card")
+                        .text("Card saved successfully!")
+                        .show();
+            } else if (result.get() == buttonTypeCancel) {
+                return;
+            }
         }
         newCard();
         Notifications.create()
@@ -445,7 +457,7 @@ public class YGOProCardMakerController implements Initializable {
         Alert alert = new Alert(AlertType.CONFIRMATION);
         alert.setTitle("Delete Card");
         alert.setHeaderText(null);
-        alert.setContentText("All card data will be lost!\n"
+        alert.setContentText("The card will be lost!\n"
                 + "Do you wish to continue?");
         ButtonType buttonTypeDelete = new ButtonType("Delete");
         alert.getButtonTypes().setAll(buttonTypeDelete, new ButtonType("Cancel"));
@@ -471,12 +483,14 @@ public class YGOProCardMakerController implements Initializable {
             setPicture(picture);
         } catch (IOException ex) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setHeaderText("File Error");
+            alert.setTitle("File Error");
+            alert.setHeaderText(null);
             alert.setContentText("Couldn't open image file.");
-            alert.showAndWait();
+            JavaFXUtils.setExceptionAlert(alert, ex).showAndWait();
         } catch (InvalidPictureException ex) {
             Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setHeaderText("Invalid Image");
+            alert.setTitle("Invalid Image");
+            alert.setHeaderText(null);
             alert.setContentText("Image size can't be null.");
             alert.showAndWait();
         }
@@ -572,9 +586,10 @@ public class YGOProCardMakerController implements Initializable {
                             .show();
                 } catch (IOException ex) {
                     alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setHeaderText("File Error");
+                    alert.setTitle("File Error");
+                    alert.setHeaderText(null);
                     alert.setContentText("Couldn't save set.");
-                    alert.showAndWait();
+                    JavaFXUtils.setExceptionAlert(alert, ex).showAndWait();
                     return;
                 }
             } else if (result.get() == buttonTypeCancel) {
@@ -626,9 +641,10 @@ public class YGOProCardMakerController implements Initializable {
                             .show();
                 } catch (IOException ex) {
                     alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setHeaderText("File Error");
+                    alert.setTitle("File Error");
+                    alert.setHeaderText(null);
                     alert.setContentText("Couldn't save set.");
-                    alert.showAndWait();
+                    JavaFXUtils.setExceptionAlert(alert, ex).showAndWait();
                     return;
                 }
             } else if (result.get() == buttonTypeCancel) {
@@ -650,9 +666,10 @@ public class YGOProCardMakerController implements Initializable {
                     .show();
         } catch (IOException ex) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setHeaderText("File Error");
+            alert.setTitle("File Error");
+            alert.setHeaderText(null);
             alert.setContentText("Couldn't open set.");
-            alert.showAndWait();
+            JavaFXUtils.setExceptionAlert(alert, ex).showAndWait();
         }
     }
 
@@ -688,9 +705,10 @@ public class YGOProCardMakerController implements Initializable {
                     .show();
         } catch (IOException ex) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setHeaderText("File Error");
+            alert.setTitle("File Error");
+            alert.setHeaderText(null);
             alert.setContentText("Couldn't save set.");
-            alert.showAndWait();
+            JavaFXUtils.setExceptionAlert(alert, ex).showAndWait();
         }
     }
 
@@ -721,9 +739,10 @@ public class YGOProCardMakerController implements Initializable {
                     .show();
         } catch (IOException ex) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setHeaderText("File Error");
+            alert.setTitle("File Error");
+            alert.setHeaderText(null);
             alert.setContentText("Couldn't save set.");
-            alert.showAndWait();
+            JavaFXUtils.setExceptionAlert(alert, ex).showAndWait();
         }
     }
 
@@ -737,19 +756,22 @@ public class YGOProCardMakerController implements Initializable {
                     .show();
         } catch (ClassNotFoundException ex) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setHeaderText("Card Database Error");
+            alert.setTitle("Card Database Error");
+            alert.setHeaderText(null);
             alert.setContentText("SQLite JDBC is not installed.");
-            alert.showAndWait();
+            JavaFXUtils.setExceptionAlert(alert, ex).showAndWait();
         } catch (SQLException ex) {
-            Alert dialog = new Alert(Alert.AlertType.ERROR);
-            dialog.setHeaderText("Card Database Error");
-            dialog.setContentText("Couldn't install set in card database.");
-            dialog.showAndWait();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Card Database Error");
+            alert.setHeaderText(null);
+            alert.setContentText("Couldn't install set in card database.");
+            JavaFXUtils.setExceptionAlert(alert, ex).showAndWait();
         } catch (IOException ex) {
-            Alert dialog = new Alert(Alert.AlertType.ERROR);
-            dialog.setHeaderText("Export Error");
-            dialog.setContentText("Couldn't save image or script file.");
-            dialog.showAndWait();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Export Error");
+            alert.setHeaderText(null);
+            alert.setContentText("Couldn't save image or script file.");
+            JavaFXUtils.setExceptionAlert(alert, ex).showAndWait();
         }
     }
 
@@ -1255,7 +1277,7 @@ public class YGOProCardMakerController implements Initializable {
         for (int i = 0; i < cards.length(); i++) {
             cardData.add(Card.fromJSON(cards.getJSONObject(i)));
         }
-        cardTable.getSelectionModel().select(0);
+        openCard(cardData.get(0));
         archtypeData.clear();
         ygoproArchtype.getItems().clear();
         ygoproSecondaryArchtype.getItems().clear();
