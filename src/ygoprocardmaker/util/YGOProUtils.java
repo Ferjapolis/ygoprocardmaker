@@ -71,7 +71,40 @@ public class YGOProUtils {
     }
 
     public static String computeEffectCategories(Card card) {
-        return "0"; //TODO
+        int code = 0;
+        code |= card.issTDestroy() ? 1 : 0;
+        code |= card.isDestroyMonster() ? 1 << 1 : 0;
+        code |= card.isBanish() ? 1 << 2 : 0;
+        code |= card.isGraveyard() ? 1 << 3 : 0;
+        code |= card.isBacktoHand() ? 1 << 4 : 0;
+        code |= card.isBackToDeck() ? 1 << 5 : 0;
+        code |= card.isDestroyHand() ? 1 << 6 : 0;
+        code |= card.isDestroyDeck() ? 1 << 7 : 0;
+        code |= card.isDraw() ? 1 << 8 : 0;
+        code |= card.isSearch() ? 1 << 9 : 0;
+        code |= card.isRecovery() ? 1 << 10 : 0;
+        code |= card.isPosition() ? 1 << 11 : 0;
+        code |= card.isControl() ? 1 << 12 : 0;
+        code |= card.isChangeATKDEF() ? 1 << 13 : 0;
+        code |= card.isPiercing() ? 1 << 14 : 0;
+        code |= card.isRepeatAttack() ? 1 << 15 : 0;
+        code |= card.isLimitAttack() ? 1 << 16 : 0;
+        code |= card.isDirectAttack() ? 1 << 17 : 0;
+        code |= card.isSpecialSummon() ? 1 << 18 : 0;
+        code |= card.isToken() ? 1 << 19 : 0;
+        code |= card.isTypeRelated() ? 1 << 20 : 0;
+        code |= card.isPropertyRelated() ? 1 << 21 : 0;
+        code |= card.isDamageLP() ? 1 << 22 : 0;
+        code |= card.isRecoveryLP() ? 1 << 23 : 0;
+        code |= card.isDestroy() ? 1 << 24 : 0;
+        code |= card.isSelect() ? 1 << 25 : 0;
+        code |= card.isCounter() ? 1 << 26 : 0;
+        code |= card.isGamble() ? 1 << 27 : 0;
+        code |= card.isFusionRelated() ? 1 << 28 : 0;
+        code |= card.isTunerRelated() ? 1 << 29 : 0;
+        code |= card.isXyzRelated() ? 1 << 30 : 0;
+        code |= card.isNegateEffect() ? 1 << 31 : 0;
+        return "" + code;
     }
 
     public static String computeString1(Card card) {

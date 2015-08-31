@@ -1057,10 +1057,9 @@ public class YGOProCardMakerController implements Initializable {
         boolean invalidSerial = !RegexUtils.isPositiveInteger(cardSerial.getText());
         if (invalidATK || invalidDEF || invalidSerial) {
             throw new InvalidFieldException("Invalid "
-                    + (invalidATK ? "ATK " : "")
-                    + (invalidDEF ? "DEF " : "")
-                    + (invalidSerial ? "Serial " : "") + "field(s).\n"
-                    + "These fields must have an integer value.");
+                    + (invalidATK ? "ATK, " : "")
+                    + (invalidDEF ? "DEF, " : "")
+                    + (invalidSerial ? "Serial, " : "") + "these field(s) must have have a integer number.");
         }
         card.setName(cardName.getText())
                 .setType(cardType.getValue())
