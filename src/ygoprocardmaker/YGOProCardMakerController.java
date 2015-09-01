@@ -867,7 +867,7 @@ public class YGOProCardMakerController implements Initializable {
         cardAttribute.getItems().setAll(ATTRIBUTES);
         cardAttribute.getSelectionModel().selectFirst();
         cardLevelRank.getItems().setAll(LEVEL_RANKS);
-        cardLevelRank.getSelectionModel().select(4);
+        cardLevelRank.getSelectionModel().select("4");
         cardMonsterType.getItems().setAll(MONSTER_TYPES);
         cardMonsterType.getSelectionModel().selectFirst();
         cardPicture.setImage(new Image(getClass().getResourceAsStream("resource/pics/unknown.png")));
@@ -879,7 +879,7 @@ public class YGOProCardMakerController implements Initializable {
         ygoproSecondaryArchtype.getItems().setAll(EMPTY);
         ygoproSecondaryArchtype.getSelectionModel().selectFirst();
         ygoproFormat.getItems().setAll(FORMATS);
-        ygoproFormat.getSelectionModel().selectFirst();
+        ygoproFormat.getSelectionModel().select("OCG/TCG");
     }
 
     private void initializeCardScript() {
@@ -1055,11 +1055,14 @@ public class YGOProCardMakerController implements Initializable {
         boolean invalidATK = !RegexUtils.isPositiveInteger(cardATK.getText());
         boolean invalidDEF = !RegexUtils.isPositiveInteger(cardDEF.getText());
         boolean invalidSerial = !RegexUtils.isPositiveInteger(cardSerial.getText());
+        boolean invalidAlias = !RegexUtils.isPositiveInteger(ygoproAlias.getText());
         if (invalidATK || invalidDEF || invalidSerial) {
             throw new InvalidFieldException("Invalid "
                     + (invalidATK ? "ATK, " : "")
                     + (invalidDEF ? "DEF, " : "")
-                    + (invalidSerial ? "Serial, " : "") + "these field(s) must have have a integer number.");
+                    + (invalidSerial ? "Serial, " : "") 
+                    + (invalidAlias ? "Alias, " : "") 
+                    + "these field(s) must have have a integer number.");
         }
         card.setName(cardName.getText())
                 .setType(cardType.getValue())
@@ -1231,7 +1234,7 @@ public class YGOProCardMakerController implements Initializable {
         ygoproAlias.setText("");
         ygoproArchtype.setValue("");
         ygoproSecondaryArchtype.setValue("");
-        ygoproFormat.setValue("OCG");
+        ygoproFormat.setValue("OCG/TCG");
         ygoproSTDestroy.setSelected(false);
         ygoproBacktoHand.setSelected(false);
         ygoproDraw.setSelected(false);

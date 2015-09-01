@@ -778,7 +778,7 @@ public class Card {
                 .setDef(RegexUtils.isPositiveInteger(json.getString("def")) ? json.getString("def") : "")
                 .setLoreEffect(json.getString("loreEffect"))
                 .setSerial(RegexUtils.isPositiveInteger(json.getString("serial")) ? json.getString("serial") : "")
-                .setAlias(json.getString("alias"))
+                .setAlias(RegexUtils.isPositiveInteger(json.getString("alias")) ? json.getString("alias") : "")
                 .setArchtype(json.getString("archtype"))
                 .setSecondaryArchtype(json.getString("secondaryArchtype"))
                 .setFormat(json.getString("format"))
