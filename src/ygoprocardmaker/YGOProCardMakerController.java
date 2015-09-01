@@ -389,7 +389,7 @@ public class YGOProCardMakerController implements Initializable {
     final private ObservableList<Archtype> archtypeData;
 
     private File setFile;
-    
+
     public YGOProCardMakerController() {
         currentCardId = 1;
         currentCardType = "Monster";
@@ -846,70 +846,71 @@ public class YGOProCardMakerController implements Initializable {
 
     private boolean cardChanged() {
         Card card = getCardById();
-        return !cardName.getText().equals(card.getName()) ||
-                !cardType.getValue().equals(card.getType()) ||
-                !cardSubType.getValue().equals(card.getSubType()) ||
-                !cardSubSubType.getValue().equals(card.getSubSubType()) ||
-                !cardAttribute.getValue().equals(card.getAttribute()) ||
-                !cardLevelRank.getValue().equals(card.getLevelRank()) ||
-                !cardMonsterType.getValue().equals(card.getMonsterType()) ||
-                !cardATK.getText().equals(card.getAtk()) ||
-                !cardDEF.getText().equals(card.getDef()) ||
-                !cardSerial.getText().equals(card.getSerial()) ||
-                !cardLoreEffect.getText().equals(card.getLoreEffect()) ||
-                // picture
-                !ygoproAlias.getText().equals(card.getAlias()) ||
-                !ygoproArchtype.getValue().equals(card.getArchtype()) ||
-                !ygoproSecondaryArchtype.getValue().equals(card.getSecondaryArchtype()) ||
-                ygoproSTDestroy.isSelected() != card.issTDestroy() ||
-                ygoproBacktoHand.isSelected() != card.isBacktoHand() ||
-                ygoproDraw.isSelected() != card.isDraw() ||
-                ygoproControl.isSelected() != card.isControl() ||
-                ygoproLimitAttack.isSelected() != card.isLimitAttack() ||
-                ygoproTypeRelated.isSelected() != card.isTypeRelated() ||
-                ygoproDestroy.isSelected() != card.isDestroy() ||
-                ygoproFusionRelated.isSelected() != card.isFusionRelated() ||
-                ygoproDestroyMonster.isSelected() != card.isDestroyMonster() ||
-                ygoproBackToDeck.isSelected() != card.isBackToDeck() ||
-                ygoproSearch.isSelected() != card.isSearch() ||
-                ygoproChangeATKDEF.isSelected() != card.isChangeATKDEF() ||
-                ygoproDirectAttack.isSelected() != card.isDirectAttack() ||
-                ygoproPropertyRelated.isSelected() != card.isPropertyRelated() ||
-                ygoproSelect.isSelected() != card.isSelect() ||
-                ygoproTunerRelated.isSelected() != card.isTunerRelated() ||
-                ygoproBanish.isSelected() != card.isBanish() ||
-                ygoproDestroyHand.isSelected() != card.isDestroyHand() ||
-                ygoproRecovery.isSelected() != card.isRecovery() ||
-                ygoproPiercing.isSelected() != card.isPiercing() ||
-                ygoproSpecialSummon.isSelected() != card.isSpecialSummon() ||
-                ygoproDamageLP.isSelected() != card.isDamageLP() ||
-                ygoproCounter.isSelected() != card.isCounter() ||
-                ygoproXyzRelated.isSelected() != card.isXyzRelated() ||
-                ygoproGraveyard.isSelected() != card.isGraveyard() ||
-                ygoproDestroyDeck.isSelected() != card.isDestroyDeck() ||
-                ygoproPosition.isSelected() != card.isPosition() ||
-                ygoproRepeatAttack.isSelected() != card.isRepeatAttack() ||
-                ygoproToken.isSelected() != card.isToken() ||
-                ygoproRecoveryLP.isSelected() != card.isRecoveryLP() ||
-                ygoproGamble.isSelected() != card.isGamble() ||
-                ygoproNegateEffect.isSelected() != card.isNegateEffect() ||
-                !ygoproString1.getText().equals(card.getString1()) ||
-                !ygoproString2.getText().equals(card.getString2()) ||
-                !ygoproString3.getText().equals(card.getString3()) ||
-                !ygoproString4.getText().equals(card.getString4()) ||
-                !ygoproString5.getText().equals(card.getString5()) ||
-                !ygoproString6.getText().equals(card.getString6()) ||
-                !ygoproString7.getText().equals(card.getString7()) ||
-                !ygoproString8.getText().equals(card.getString8()) ||
-                !ygoproString9.getText().equals(card.getString9()) ||
-                !ygoproString10.getText().equals(card.getString10()) ||
-                !ygoproString11.getText().equals(card.getString11()) ||
-                !ygoproString12.getText().equals(card.getString12()) ||
-                !ygoproString13.getText().equals(card.getString13()) ||
-                !ygoproString14.getText().equals(card.getString14()) ||
-                !ygoproString15.getText().equals(card.getString15()) ||
-                !ygoproString16.getText().equals(card.getString16()) ||
-                !scriptEditor.getEngine().executeScript("editor.getValue();").equals(card.getScript());
+        boolean isSpellTrap = currentCardType.equals("Spell") || currentCardType.equals("Trap");
+        return !cardName.getText().equals(card.getName())
+                || !cardType.getValue().equals(card.getType())
+                || !cardSubType.getValue().equals(card.getSubType())
+                || (isSpellTrap ? false : !cardSubSubType.getValue().equals(card.getSubSubType()))
+                || (isSpellTrap ? false : !cardAttribute.getValue().equals(card.getAttribute()))
+                || (isSpellTrap ? false : !cardLevelRank.getValue().equals(card.getLevelRank()))
+                || (isSpellTrap ? false : !cardMonsterType.getValue().equals(card.getMonsterType()))
+                || (isSpellTrap ? false : !cardATK.getText().equals(card.getAtk()))
+                || (isSpellTrap ? false : !cardDEF.getText().equals(card.getDef()))
+                || !cardSerial.getText().equals(card.getSerial())
+                || !cardLoreEffect.getText().equals(card.getLoreEffect())
+                || !ygoproAlias.getText().equals(card.getAlias())
+                || !ygoproArchtype.getValue().equals(card.getArchtype())
+                || !ygoproSecondaryArchtype.getValue().equals(card.getSecondaryArchtype())
+                || ygoproSTDestroy.isSelected() != card.issTDestroy()
+                || ygoproBacktoHand.isSelected() != card.isBacktoHand()
+                || ygoproDraw.isSelected() != card.isDraw()
+                || ygoproControl.isSelected() != card.isControl()
+                || ygoproLimitAttack.isSelected() != card.isLimitAttack()
+                || ygoproTypeRelated.isSelected() != card.isTypeRelated()
+                || ygoproDestroy.isSelected() != card.isDestroy()
+                || ygoproFusionRelated.isSelected() != card.isFusionRelated()
+                || ygoproDestroyMonster.isSelected() != card.isDestroyMonster()
+                || ygoproBackToDeck.isSelected() != card.isBackToDeck()
+                || ygoproSearch.isSelected() != card.isSearch()
+                || ygoproChangeATKDEF.isSelected() != card.isChangeATKDEF()
+                || ygoproDirectAttack.isSelected() != card.isDirectAttack()
+                || ygoproPropertyRelated.isSelected() != card.isPropertyRelated()
+                || ygoproSelect.isSelected() != card.isSelect()
+                || ygoproTunerRelated.isSelected() != card.isTunerRelated()
+                || ygoproBanish.isSelected() != card.isBanish()
+                || ygoproDestroyHand.isSelected() != card.isDestroyHand()
+                || ygoproRecovery.isSelected() != card.isRecovery()
+                || ygoproPiercing.isSelected() != card.isPiercing()
+                || ygoproSpecialSummon.isSelected() != card.isSpecialSummon()
+                || ygoproDamageLP.isSelected() != card.isDamageLP()
+                || ygoproCounter.isSelected() != card.isCounter()
+                || ygoproXyzRelated.isSelected() != card.isXyzRelated()
+                || ygoproGraveyard.isSelected() != card.isGraveyard()
+                || ygoproDestroyDeck.isSelected() != card.isDestroyDeck()
+                || ygoproPosition.isSelected() != card.isPosition()
+                || ygoproRepeatAttack.isSelected() != card.isRepeatAttack()
+                || ygoproToken.isSelected() != card.isToken()
+                || ygoproRecoveryLP.isSelected() != card.isRecoveryLP()
+                || ygoproGamble.isSelected() != card.isGamble()
+                || ygoproNegateEffect.isSelected() != card.isNegateEffect()
+                || !ygoproString1.getText().equals(card.getString1())
+                || !ygoproString2.getText().equals(card.getString2())
+                || !ygoproString3.getText().equals(card.getString3())
+                || !ygoproString4.getText().equals(card.getString4())
+                || !ygoproString5.getText().equals(card.getString5())
+                || !ygoproString6.getText().equals(card.getString6())
+                || !ygoproString7.getText().equals(card.getString7())
+                || !ygoproString8.getText().equals(card.getString8())
+                || !ygoproString9.getText().equals(card.getString9())
+                || !ygoproString10.getText().equals(card.getString10())
+                || !ygoproString11.getText().equals(card.getString11())
+                || !ygoproString12.getText().equals(card.getString12())
+                || !ygoproString13.getText().equals(card.getString13())
+                || !ygoproString14.getText().equals(card.getString14())
+                || !ygoproString15.getText().equals(card.getString15())
+                || !ygoproString16.getText().equals(card.getString16())
+                || (cardPicture.getImage() == null || card.getPicture() == null ? cardPicture.getImage() != card.getPicture() : !ImageUtils.compareImages(SwingFXUtils.fromFXImage(cardPicture.getImage(), null), SwingFXUtils.fromFXImage(card.getPicture(), null)))
+                || !scriptEditor.getEngine().executeScript("editor.getValue();").equals(card.getScript());
     }
 
     private boolean setChanged() {
@@ -1130,8 +1131,8 @@ public class YGOProCardMakerController implements Initializable {
             throw new InvalidFieldException("Invalid "
                     + (invalidATK ? "ATK, " : "")
                     + (invalidDEF ? "DEF, " : "")
-                    + (invalidSerial ? "Serial, " : "") 
-                    + (invalidAlias ? "Alias, " : "") 
+                    + (invalidSerial ? "Serial, " : "")
+                    + (invalidAlias ? "Alias, " : "")
                     + "these field(s) must have have a integer number.");
         }
         card.setName(cardName.getText())
