@@ -431,6 +431,44 @@ public class YGOProCardMakerController implements Initializable {
     }
 
     @FXML
+    private void handleOpenCardButton() {
+        if (cardChanged()) {
+            Alert alert = new Alert(AlertType.CONFIRMATION);
+            alert.setTitle("Open Card");
+            alert.setHeaderText(null);
+            alert.setContentText("Do you wish to save before opening another card?\n"
+                    + "If you don't, changes will be lost.");
+            ButtonType buttonTypeOpenSave = new ButtonType("Save & Open");
+            ButtonType buttonTypeCancel = new ButtonType("Cancel");
+            alert.getButtonTypes().setAll(buttonTypeOpenSave, new ButtonType("Open"), buttonTypeCancel);
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.get() == buttonTypeOpenSave) {
+                try {
+                    saveCard(getCardById(), true);
+                } catch (InvalidFieldException ex) {
+                    alert = new Alert(AlertType.WARNING);
+                    alert.setTitle("Save Card");
+                    alert.setHeaderText(null);
+                    alert.setContentText(ex.getMessage());
+                    alert.showAndWait();
+                    return;
+                }
+                Notifications.create()
+                        .title("Save Card")
+                        .text("Card saved successfully!")
+                        .show();
+            } else if (result.get() == buttonTypeCancel) {
+                return;
+            }
+        }
+        openCard(cardTable.getSelectionModel().getSelectedItem());
+        Notifications.create()
+                .title("Open Card")
+                .text("Card opened successfully!")
+                .show();
+    }
+
+    @FXML
     private void handleNewCardButton() {
         if (cardChanged()) {
             Alert alert = new Alert(AlertType.CONFIRMATION);
@@ -909,7 +947,7 @@ public class YGOProCardMakerController implements Initializable {
                 || !ygoproString14.getText().equals(card.getString14())
                 || !ygoproString15.getText().equals(card.getString15())
                 || !ygoproString16.getText().equals(card.getString16())
-                || (cardPicture.getImage() == null || card.getPicture() == null ? cardPicture.getImage() != card.getPicture() : !ImageUtils.compareImages(SwingFXUtils.fromFXImage(cardPicture.getImage(), null), SwingFXUtils.fromFXImage(card.getPicture(), null)))
+                || (card.getPicture() == null ? hasPicture : !ImageUtils.compareImages(SwingFXUtils.fromFXImage(cardPicture.getImage(), null), SwingFXUtils.fromFXImage(card.getPicture(), null)))
                 || !scriptEditor.getEngine().executeScript("editor.getValue();").equals(card.getScript());
     }
 
@@ -994,11 +1032,6 @@ public class YGOProCardMakerController implements Initializable {
         loreEffectColumn.setCellValueFactory(new PropertyValueFactory<>("loreEffect"));
         serialColumn.setCellValueFactory(new PropertyValueFactory<>("serial"));
         cardTable.setItems(cardData);
-        cardTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-            if (newSelection != null && newSelection.getId() != currentCardId) {
-                openCard(newSelection);
-            }
-        });
         Card card = new Card(currentCardId);
         cardData.add(card);
         try {
@@ -1275,6 +1308,7 @@ public class YGOProCardMakerController implements Initializable {
         } else {
             cardPicture.setImage(new Image(getClass().getResourceAsStream("resource/pics/unknown.png")));
         }
+        cardTable.getSelectionModel().select(card);
     }
 
     private int getGreatestUnusedId() {
@@ -1360,7 +1394,7 @@ public class YGOProCardMakerController implements Initializable {
         Card card = new Card(getGreatestUnusedId());
         cardData.add(card);
         saveCard(card, true);
-        cardTable.getSelectionModel().select(card);
+        openCard(card);
     }
 
     private void deleteCard() throws InvalidFieldException {
@@ -1370,7 +1404,7 @@ public class YGOProCardMakerController implements Initializable {
         if (cardData.size() == 0) {
             newCard();
         } else {
-            cardTable.getSelectionModel().select(index == cardData.size() ? cardData.size() - 1 : index);
+            openCard(cardData.get(index == cardData.size() ? cardData.size() - 1 : index));
         }
     }
 
@@ -1414,15 +1448,11 @@ public class YGOProCardMakerController implements Initializable {
         setTitle.setText(json.getString("name"));
         setAuthor.setText(json.getString("author"));
         setDescription.setText(json.getString("description"));
-        cardData.clear();
-        JSONArray cards = json.getJSONArray("cards");
-        for (int i = 0; i < cards.length(); i++) {
-            cardData.add(Card.fromJSON(cards.getJSONObject(i)));
-        }
-        openCard(cardData.get(0));
         archtypeData.clear();
         ygoproArchtype.getItems().clear();
+        ygoproArchtype.getItems().setAll(EMPTY);
         ygoproSecondaryArchtype.getItems().clear();
+        ygoproSecondaryArchtype.getItems().setAll(EMPTY);
         JSONArray archtypes = json.getJSONArray("archtypes");
         for (int i = 0; i < archtypes.length(); i++) {
             Archtype archtype = Archtype.fromJSON(archtypes.getJSONObject(i));
@@ -1435,6 +1465,12 @@ public class YGOProCardMakerController implements Initializable {
             ygoproSecondaryArchtype.getItems().add(archtype.getName());
         });
         deleteArchtypeButton.setDisable(archtypeData.isEmpty());
+        cardData.clear();
+        JSONArray cards = json.getJSONArray("cards");
+        for (int i = 0; i < cards.length(); i++) {
+            cardData.add(Card.fromJSON(cards.getJSONObject(i)));
+        }
+        openCard(cardData.get(0));
     }
 
     private void exportSet() throws ClassNotFoundException, SQLException, IOException {

@@ -268,6 +268,7 @@
                                         <ToolBar prefHeight="40.0" prefWidth="318.0">
                                             <items>
                                                 <Button mnemonicParsing="false" onAction="#handleSaveCardButton" text="Save Card" />
+                                    <Button mnemonicParsing="false" onAction="#handleOpenCardButton" text="Open Card" />
                                                 <Button mnemonicParsing="false" onAction="#handleNewCardButton" text="New Card" />
                                                 <Button mnemonicParsing="false" onAction="#handleDeleteCardButton" text="Delete Card" />
                                             </items>
