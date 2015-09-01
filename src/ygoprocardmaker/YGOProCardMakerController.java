@@ -635,20 +635,32 @@ public class YGOProCardMakerController implements Initializable {
                         }
                     }
                     if (cardChanged()) {
-                        try {
-                            saveCard(getCardById(), true);
-                        } catch (InvalidFieldException ex) {
-                            alert = new Alert(AlertType.WARNING);
-                            alert.setTitle("Save Card");
-                            alert.setHeaderText(null);
-                            alert.setContentText(ex.getMessage());
-                            alert.showAndWait();
+                        alert = new Alert(AlertType.CONFIRMATION);
+                        alert.setTitle("New Set");
+                        alert.setHeaderText(null);
+                        alert.setContentText("Do you wish to save the current card before saving the set?\n"
+                                + "If you don't, changes will be lost.");
+                        ButtonType buttonTypeSaveExport = new ButtonType("Save & Export");
+                        alert.getButtonTypes().setAll(buttonTypeSaveExport, new ButtonType("Export"), buttonTypeCancel);
+                        result = alert.showAndWait();
+                        if (result.get() == buttonTypeSaveExport) {
+                            try {
+                                saveCard(getCardById(), true);
+                                Notifications.create()
+                                        .title("Save Card")
+                                        .text("Card saved successfully!")
+                                        .show();
+                            } catch (InvalidFieldException ex) {
+                                alert = new Alert(AlertType.WARNING);
+                                alert.setTitle("Save Card");
+                                alert.setHeaderText(null);
+                                alert.setContentText(ex.getMessage());
+                                alert.showAndWait();
+                                return;
+                            }
+                        } else if (result.get() == buttonTypeCancel) {
                             return;
                         }
-                        Notifications.create()
-                                .title("Save Card")
-                                .text("Card saved successfully!")
-                                .show();
                     }
                     saveSet(set);
                     Notifications.create()
@@ -700,20 +712,32 @@ public class YGOProCardMakerController implements Initializable {
                         }
                     }
                     if (cardChanged()) {
-                        try {
-                            saveCard(getCardById(), true);
-                        } catch (InvalidFieldException ex) {
-                            alert = new Alert(AlertType.WARNING);
-                            alert.setTitle("Save Card");
-                            alert.setHeaderText(null);
-                            alert.setContentText(ex.getMessage());
-                            alert.showAndWait();
+                        alert = new Alert(AlertType.CONFIRMATION);
+                        alert.setTitle("Open Set");
+                        alert.setHeaderText(null);
+                        alert.setContentText("Do you wish to save the current card before saving the set?\n"
+                                + "If you don't, changes will be lost.");
+                        ButtonType buttonTypeSaveExport = new ButtonType("Save & Export");
+                        alert.getButtonTypes().setAll(buttonTypeSaveExport, new ButtonType("Export"), buttonTypeCancel);
+                        result = alert.showAndWait();
+                        if (result.get() == buttonTypeSaveExport) {
+                            try {
+                                saveCard(getCardById(), true);
+                                Notifications.create()
+                                        .title("Save Card")
+                                        .text("Card saved successfully!")
+                                        .show();
+                            } catch (InvalidFieldException ex) {
+                                alert = new Alert(AlertType.WARNING);
+                                alert.setTitle("Save Card");
+                                alert.setHeaderText(null);
+                                alert.setContentText(ex.getMessage());
+                                alert.showAndWait();
+                                return;
+                            }
+                        } else if (result.get() == buttonTypeCancel) {
                             return;
                         }
-                        Notifications.create()
-                                .title("Save Card")
-                                .text("Card saved successfully!")
-                                .show();
                     }
                     saveSet(set);
                     Notifications.create()
@@ -757,6 +781,35 @@ public class YGOProCardMakerController implements Initializable {
 
     @FXML
     private void handleSaveSetMenuItem() {
+        if (cardChanged()) {
+            Alert alert = new Alert(AlertType.CONFIRMATION);
+            alert.setTitle("Save Set");
+            alert.setHeaderText(null);
+            alert.setContentText("Do you wish to save the current card before saving the set?\n"
+                    + "If you don't, changes will be lost.");
+            ButtonType buttonTypeSaveExport = new ButtonType("Save & Export");
+            ButtonType buttonTypeCancel = new ButtonType("Cancel");
+            alert.getButtonTypes().setAll(buttonTypeSaveExport, new ButtonType("Export"), buttonTypeCancel);
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.get() == buttonTypeSaveExport) {
+                try {
+                    saveCard(getCardById(), true);
+                    Notifications.create()
+                            .title("Save Card")
+                            .text("Card saved successfully!")
+                            .show();
+                } catch (InvalidFieldException ex) {
+                    alert = new Alert(AlertType.WARNING);
+                    alert.setTitle("Save Card");
+                    alert.setHeaderText(null);
+                    alert.setContentText(ex.getMessage());
+                    alert.showAndWait();
+                    return;
+                }
+            } else if (result.get() == buttonTypeCancel) {
+                return;
+            }
+        }
         File set;
         if (setFile == null) {
             FileChooser fileChooser = new FileChooser();
@@ -774,22 +827,6 @@ public class YGOProCardMakerController implements Initializable {
             set = setFile;
         }
         try {
-            if (cardChanged()) {
-                try {
-                    saveCard(getCardById(), true);
-                } catch (InvalidFieldException ex) {
-                    Alert alert = new Alert(AlertType.WARNING);
-                    alert.setTitle("Save Card");
-                    alert.setHeaderText(null);
-                    alert.setContentText(ex.getMessage());
-                    alert.showAndWait();
-                    return;
-                }
-                Notifications.create()
-                        .title("Save Card")
-                        .text("Card saved successfully!")
-                        .show();
-            }
             saveSet(set);
             Notifications.create()
                     .title("Save Set")
@@ -806,6 +843,35 @@ public class YGOProCardMakerController implements Initializable {
 
     @FXML
     private void handleSaveSetAsMenuItem() {
+        if (cardChanged()) {
+            Alert alert = new Alert(AlertType.CONFIRMATION);
+            alert.setTitle("Save Set");
+            alert.setHeaderText(null);
+            alert.setContentText("Do you wish to save the current card before saving the set?\n"
+                    + "If you don't, changes will be lost.");
+            ButtonType buttonTypeSaveExport = new ButtonType("Save & Export");
+            ButtonType buttonTypeCancel = new ButtonType("Cancel");
+            alert.getButtonTypes().setAll(buttonTypeSaveExport, new ButtonType("Export"), buttonTypeCancel);
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.get() == buttonTypeSaveExport) {
+                try {
+                    saveCard(getCardById(), true);
+                    Notifications.create()
+                            .title("Save Card")
+                            .text("Card saved successfully!")
+                            .show();
+                } catch (InvalidFieldException ex) {
+                    alert = new Alert(AlertType.WARNING);
+                    alert.setTitle("Save Card");
+                    alert.setHeaderText(null);
+                    alert.setContentText(ex.getMessage());
+                    alert.showAndWait();
+                    return;
+                }
+            } else if (result.get() == buttonTypeCancel) {
+                return;
+            }
+        }
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save Card Set");
         fileChooser.setInitialDirectory(new File("."));
@@ -818,22 +884,6 @@ public class YGOProCardMakerController implements Initializable {
             set = new File(set.getPath() + ".ygopcms");
         }
         try {
-            if (cardChanged()) {
-                try {
-                    saveCard(getCardById(), true);
-                } catch (InvalidFieldException ex) {
-                    Alert alert = new Alert(AlertType.WARNING);
-                    alert.setTitle("Save Card");
-                    alert.setHeaderText(null);
-                    alert.setContentText(ex.getMessage());
-                    alert.showAndWait();
-                    return;
-                }
-                Notifications.create()
-                        .title("Save Card")
-                        .text("Card saved successfully!")
-                        .show();
-            }
             saveSet(set);
             Notifications.create()
                     .title("Save Set")
@@ -850,6 +900,35 @@ public class YGOProCardMakerController implements Initializable {
 
     @FXML
     private void handleExportSetMenuItem() {
+        if (cardChanged()) {
+            Alert alert = new Alert(AlertType.CONFIRMATION);
+            alert.setTitle("Export Set");
+            alert.setHeaderText(null);
+            alert.setContentText("Do you wish to save the current card before exporting?\n"
+                    + "If you don't, changes will not be exported.");
+            ButtonType buttonTypeSaveExport = new ButtonType("Save & Export");
+            ButtonType buttonTypeCancel = new ButtonType("Cancel");
+            alert.getButtonTypes().setAll(buttonTypeSaveExport, new ButtonType("Export"), buttonTypeCancel);
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.get() == buttonTypeSaveExport) {
+                try {
+                    saveCard(getCardById(), true);
+                    Notifications.create()
+                            .title("Save Card")
+                            .text("Card saved successfully!")
+                            .show();
+                } catch (InvalidFieldException ex) {
+                    alert = new Alert(AlertType.WARNING);
+                    alert.setTitle("Save Card");
+                    alert.setHeaderText(null);
+                    alert.setContentText(ex.getMessage());
+                    alert.showAndWait();
+                    return;
+                }
+            } else if (result.get() == buttonTypeCancel) {
+                return;
+            }
+        }
         try {
             exportSet();
             Notifications.create()
