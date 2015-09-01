@@ -496,6 +496,7 @@ public class YGOProCardMakerController implements Initializable {
     private void handleSetPictureButton() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Set Card Picture");
+        fileChooser.setInitialDirectory(new File("."));
         fileChooser.getExtensionFilters().addAll(new ExtensionFilter("Image Files", "*.jpg", "*.jpeg", "*.png"));
         File picture = fileChooser.showOpenDialog(null);
         if (picture == null) {
@@ -588,6 +589,7 @@ public class YGOProCardMakerController implements Initializable {
                     if (setFile == null) {
                         FileChooser fileChooser = new FileChooser();
                         fileChooser.setTitle("Save Card Set");
+                        fileChooser.setInitialDirectory(new File("."));
                         fileChooser.getExtensionFilters().addAll(new ExtensionFilter("YGOProCardMakerSet (*.ygopcms)", "*.ygopcms"));
                         set = fileChooser.showSaveDialog(null);
                         if (set == null) {
@@ -652,6 +654,7 @@ public class YGOProCardMakerController implements Initializable {
                     if (setFile == null) {
                         FileChooser fileChooser = new FileChooser();
                         fileChooser.setTitle("Save Card Set");
+                        fileChooser.setInitialDirectory(new File("."));
                         fileChooser.getExtensionFilters().addAll(new ExtensionFilter("YGOProCardMakerSet (*.ygopcms)", "*.ygopcms"));
                         set = fileChooser.showSaveDialog(null);
                         if (set == null) {
@@ -693,6 +696,7 @@ public class YGOProCardMakerController implements Initializable {
         }
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Card Set");
+        fileChooser.setInitialDirectory(new File("."));
         fileChooser.getExtensionFilters().addAll(new ExtensionFilter("YGOProCardMakerSet (*.ygopcms)", "*.ygopcms"));
         File set = fileChooser.showOpenDialog(null);
         if (set == null) {
@@ -719,6 +723,7 @@ public class YGOProCardMakerController implements Initializable {
         if (setFile == null) {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Save Card Set");
+            fileChooser.setInitialDirectory(new File("."));
             fileChooser.getExtensionFilters().addAll(new ExtensionFilter("YGOProCardMakerSet (*.ygopcms)", "*.ygopcms"));
             set = fileChooser.showSaveDialog(null);
             if (set == null) {
@@ -765,6 +770,7 @@ public class YGOProCardMakerController implements Initializable {
     private void handleSaveSetAsMenuItem() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save Card Set");
+        fileChooser.setInitialDirectory(new File("."));
         fileChooser.getExtensionFilters().addAll(new ExtensionFilter("YGOProCardMakerSet (*.ygopcms)", "*.ygopcms"));
         File set = fileChooser.showSaveDialog(null);
         if (set == null) {
@@ -839,7 +845,71 @@ public class YGOProCardMakerController implements Initializable {
     }
 
     private boolean cardChanged() {
-        return true;
+        Card card = getCardById();
+        return !cardName.getText().equals(card.getName()) ||
+                !cardType.getValue().equals(card.getType()) ||
+                !cardSubType.getValue().equals(card.getSubType()) ||
+                !cardSubSubType.getValue().equals(card.getSubSubType()) ||
+                !cardAttribute.getValue().equals(card.getAttribute()) ||
+                !cardLevelRank.getValue().equals(card.getLevelRank()) ||
+                !cardMonsterType.getValue().equals(card.getMonsterType()) ||
+                !cardATK.getText().equals(card.getAtk()) ||
+                !cardDEF.getText().equals(card.getDef()) ||
+                !cardSerial.getText().equals(card.getSerial()) ||
+                !cardLoreEffect.getText().equals(card.getLoreEffect()) ||
+                // picture
+                !ygoproAlias.getText().equals(card.getAlias()) ||
+                !ygoproArchtype.getValue().equals(card.getArchtype()) ||
+                !ygoproSecondaryArchtype.getValue().equals(card.getSecondaryArchtype()) ||
+                ygoproSTDestroy.isSelected() != card.issTDestroy() ||
+                ygoproBacktoHand.isSelected() != card.isBacktoHand() ||
+                ygoproDraw.isSelected() != card.isDraw() ||
+                ygoproControl.isSelected() != card.isControl() ||
+                ygoproLimitAttack.isSelected() != card.isLimitAttack() ||
+                ygoproTypeRelated.isSelected() != card.isTypeRelated() ||
+                ygoproDestroy.isSelected() != card.isDestroy() ||
+                ygoproFusionRelated.isSelected() != card.isFusionRelated() ||
+                ygoproDestroyMonster.isSelected() != card.isDestroyMonster() ||
+                ygoproBackToDeck.isSelected() != card.isBackToDeck() ||
+                ygoproSearch.isSelected() != card.isSearch() ||
+                ygoproChangeATKDEF.isSelected() != card.isChangeATKDEF() ||
+                ygoproDirectAttack.isSelected() != card.isDirectAttack() ||
+                ygoproPropertyRelated.isSelected() != card.isPropertyRelated() ||
+                ygoproSelect.isSelected() != card.isSelect() ||
+                ygoproTunerRelated.isSelected() != card.isTunerRelated() ||
+                ygoproBanish.isSelected() != card.isBanish() ||
+                ygoproDestroyHand.isSelected() != card.isDestroyHand() ||
+                ygoproRecovery.isSelected() != card.isRecovery() ||
+                ygoproPiercing.isSelected() != card.isPiercing() ||
+                ygoproSpecialSummon.isSelected() != card.isSpecialSummon() ||
+                ygoproDamageLP.isSelected() != card.isDamageLP() ||
+                ygoproCounter.isSelected() != card.isCounter() ||
+                ygoproXyzRelated.isSelected() != card.isXyzRelated() ||
+                ygoproGraveyard.isSelected() != card.isGraveyard() ||
+                ygoproDestroyDeck.isSelected() != card.isDestroyDeck() ||
+                ygoproPosition.isSelected() != card.isPosition() ||
+                ygoproRepeatAttack.isSelected() != card.isRepeatAttack() ||
+                ygoproToken.isSelected() != card.isToken() ||
+                ygoproRecoveryLP.isSelected() != card.isRecoveryLP() ||
+                ygoproGamble.isSelected() != card.isGamble() ||
+                ygoproNegateEffect.isSelected() != card.isNegateEffect() ||
+                !ygoproString1.getText().equals(card.getString1()) ||
+                !ygoproString2.getText().equals(card.getString2()) ||
+                !ygoproString3.getText().equals(card.getString3()) ||
+                !ygoproString4.getText().equals(card.getString4()) ||
+                !ygoproString5.getText().equals(card.getString5()) ||
+                !ygoproString6.getText().equals(card.getString6()) ||
+                !ygoproString7.getText().equals(card.getString7()) ||
+                !ygoproString8.getText().equals(card.getString8()) ||
+                !ygoproString9.getText().equals(card.getString9()) ||
+                !ygoproString10.getText().equals(card.getString10()) ||
+                !ygoproString11.getText().equals(card.getString11()) ||
+                !ygoproString12.getText().equals(card.getString12()) ||
+                !ygoproString13.getText().equals(card.getString13()) ||
+                !ygoproString14.getText().equals(card.getString14()) ||
+                !ygoproString15.getText().equals(card.getString15()) ||
+                !ygoproString16.getText().equals(card.getString16()) ||
+                !scriptEditor.getEngine().executeScript("editor.getValue();").equals(card.getScript());
     }
 
     private boolean setChanged() {
