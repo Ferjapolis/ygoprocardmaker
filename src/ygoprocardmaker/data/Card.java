@@ -1,5 +1,6 @@
 package ygoprocardmaker.data;
 
+import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import org.json.JSONObject;
 import ygoprocardmaker.util.ImageUtils;
@@ -834,4 +835,70 @@ public class Card {
                 .setPicture(!json.isNull("picture") ? ImageUtils.fromString(json.getString("picture")) : null);
     }
 
+    public static boolean differ(Card card1, Card card2) {
+        return !card1.name.equals(card2.name)
+                || !card1.type.equals(card2.type)
+                || !card1.subType.equals(card2.subType)
+                || !card1.subSubType.equals(card2.subSubType)
+                || !card1.attribute.equals(card2.attribute)
+                || !card1.levelRank.equals(card2.levelRank)
+                || !card1.monsterType.equals(card2.monsterType)
+                || !card1.atk.equals(card2.atk)
+                || !card1.def.equals(card2.def)
+                || !card1.serial.equals(card2.serial)
+                || !card1.loreEffect.equals(card2.loreEffect)
+                || !card1.alias.equals(card2.alias)
+                || !card1.archtype.equals(card2.archtype)
+                || !card1.secondaryArchtype.equals(card2.secondaryArchtype)
+                || card1.sTDestroy != card2.sTDestroy
+                || card1.backtoHand != card2.backtoHand
+                || card1.draw != card2.draw
+                || card1.control != card2.control
+                || card1.limitAttack != card2.limitAttack
+                || card1.typeRelated != card2.typeRelated
+                || card1.destroy != card2.destroy
+                || card1.fusionRelated != card2.fusionRelated
+                || card1.destroyMonster != card2.destroyMonster
+                || card1.backToDeck != card2.backToDeck
+                || card1.search != card2.search
+                || card1.changeATKDEF != card2.changeATKDEF
+                || card1.directAttack != card2.directAttack
+                || card1.propertyRelated != card2.propertyRelated
+                || card1.select != card2.select
+                || card1.tunerRelated != card2.tunerRelated
+                || card1.banish != card2.banish
+                || card1.destroyHand != card2.destroyHand
+                || card1.recovery != card2.recovery
+                || card1.piercing != card2.piercing
+                || card1.specialSummon != card2.specialSummon
+                || card1.damageLP != card2.damageLP
+                || card1.counter != card2.counter
+                || card1.xyzRelated != card2.xyzRelated
+                || card1.graveyard != card2.graveyard
+                || card1.destroyDeck != card2.destroyDeck
+                || card1.position != card2.position
+                || card1.repeatAttack != card2.repeatAttack
+                || card1.token != card2.token
+                || card1.recoveryLP != card2.recoveryLP
+                || card1.gamble != card2.gamble
+                || card1.negateEffect != card2.negateEffect
+                || !card1.string1.equals(card2.string1)
+                || !card1.string2.equals(card2.string2)
+                || !card1.string3.equals(card2.string3)
+                || !card1.string4.equals(card2.string4)
+                || !card1.string5.equals(card2.string5)
+                || !card1.string6.equals(card2.string6)
+                || !card1.string7.equals(card2.string7)
+                || !card1.string8.equals(card2.string8)
+                || !card1.string9.equals(card2.string9)
+                || !card1.string10.equals(card2.string10)
+                || !card1.string11.equals(card2.string11)
+                || !card1.string12.equals(card2.string12)
+                || !card1.string13.equals(card2.string13)
+                || !card1.string14.equals(card2.string14)
+                || !card1.string15.equals(card2.string15)
+                || !card1.string16.equals(card2.string16)
+                || (card1.picture == null || card2.picture == null ? card1.picture == card2.picture : !ImageUtils.compareImages(SwingFXUtils.fromFXImage(card1.picture, null), SwingFXUtils.fromFXImage(card2.picture, null)))
+                || !card1.script.equals(card2.script);
+    }
 }

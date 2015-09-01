@@ -13,8 +13,6 @@ public class Archtype {
 
     private String code;
 
-    private String extension;
-
     public Archtype(String name) {
         this.name = name;
     }
@@ -60,4 +58,7 @@ public class Archtype {
                 .setCode(json.getString("code"));
     }
 
+    public static boolean differ(Archtype arch1, Archtype arch2) {
+        return !arch1.name.equals(arch2.name) || !arch1.code.equals(arch2.code);
+    }
 }

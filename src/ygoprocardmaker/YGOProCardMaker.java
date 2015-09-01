@@ -19,7 +19,6 @@ public class YGOProCardMaker extends Application {
         Scene scene = new Scene(root);
         stage.setTitle("YGOProCardMaker");
         stage.getIcons().add(new Image(getClass().getResourceAsStream("resource/pics/icon.png")));
-        stage.setResizable(false);
         stage.setScene(scene);
         stage.show();
     }
