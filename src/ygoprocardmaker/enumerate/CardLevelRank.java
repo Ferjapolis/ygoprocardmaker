@@ -9,7 +9,7 @@ import ygoprocardmaker.util.CollectionsUtil;
  */
 public class CardLevelRank {
     
-    public static final ObservableList<String> LEVEL_RANKS = CollectionsUtil.unmodifiableList("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13");
+    public static final ObservableList<String> LEVEL_RANKS = CollectionsUtil.unmodifiableList("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12");
 
     public static int code(String rank) {
         int code;

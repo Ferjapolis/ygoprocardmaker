@@ -46,7 +46,11 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
+import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.FileImageOutputStream;
 import netscape.javascript.JSObject;
 import org.controlsfx.control.Notifications;
 import org.json.JSONArray;
@@ -1668,13 +1672,19 @@ public class YGOProCardMakerController implements Initializable {
                     }
                 }
                 if (card.getPicture() != null) {
-                    File picture = new File("pics" + File.separator + card.getSerial() + ".jpg");
                     BufferedImage image = SwingFXUtils.fromFXImage(card.getPicture(), null);
                     BufferedImage imageRGB = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.OPAQUE);
                     Graphics2D graphics = imageRGB.createGraphics();
                     graphics.drawImage(image, 0, 0, null);
-                    ImageIO.write(imageRGB, "jpg", picture);
-                    graphics.dispose();
+                    ImageWriter jpgWriter = ImageIO.getImageWritersByFormatName("jpg").next();
+                    ImageWriteParam jpgWriteParam = jpgWriter.getDefaultWriteParam();
+                    jpgWriteParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+                    jpgWriteParam.setCompressionQuality(1.0f);
+                    FileImageOutputStream outputStream = new FileImageOutputStream(new File("pics" + File.separator + card.getSerial() + ".jpg")); //For example, FileImageOutputStream
+                    jpgWriter.setOutput(outputStream);
+                    IIOImage outputImage = new IIOImage(imageRGB, null, null);
+                    jpgWriter.write(null, outputImage, jpgWriteParam);
+                    jpgWriter.dispose();
                 }
             }
             conn.commit();
