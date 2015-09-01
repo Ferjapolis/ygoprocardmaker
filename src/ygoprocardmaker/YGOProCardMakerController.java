@@ -46,6 +46,7 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
+import javafx.stage.Stage;
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageWriteParam;
@@ -984,6 +985,18 @@ public class YGOProCardMakerController implements Initializable {
     @FXML
     private void handleQuitMenuItem() {
         System.exit(0);
+    }
+
+    @FXML
+    private void handleAboutMenuItem() {
+        Alert alert = new Alert(null);
+        alert.setTitle("About");
+        alert.setHeaderText(null);
+        alert.setContentText("YGOProCardMaker\n\nCreate, manage and export custom YGOPro cards.\n\nAuthor: DracoStriker\nSource: https://github.com/DracoStriker/ygoprocardmaker");
+        alert.getButtonTypes().setAll(new ButtonType("Close"));
+        Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(this.getClass().getResource("resource/pics/icon.png").toString()));
+        alert.showAndWait();
     }
 
     private boolean cardChanged() {
