@@ -318,6 +318,15 @@ public class YGOProCardMakerController implements Initializable {
     private TextField archtypeCode;
 
     @FXML
+    private TextField extensionName;
+
+    @FXML
+    private TextField extensionCode;
+
+    @FXML
+    private ChoiceBox<String> baseArchtypes;
+
+    @FXML
     private TableView<Archtype> archtypeTable;
 
     @FXML
@@ -328,6 +337,18 @@ public class YGOProCardMakerController implements Initializable {
 
     @FXML
     private Button deleteArchtypeButton;
+
+    @FXML
+    private Button extensionArchtypeButton;
+
+    @FXML
+    private Label archtypeBaseLabel;
+
+    @FXML
+    private Label extensionNameLabel;
+
+    @FXML
+    private Label extensionCodeLabel;
 
     // Card Table
     @FXML
@@ -627,6 +648,41 @@ public class YGOProCardMakerController implements Initializable {
             Notifications.create()
                     .title("Delete Archtype")
                     .text("Archtype deleted successfully!")
+                    .show();
+        }
+    }
+
+    @FXML
+    private void handleExtensionArchtypeButton() {
+        if (baseArchtypes.getValue() == null || baseArchtypes.getValue().equals("")) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Invalid Base Archtype Name");
+            alert.setHeaderText(null);
+            alert.setContentText("Select an existing base archtype.");
+            alert.showAndWait();
+        } else if (extensionName.getText().equals("")) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Invalid Extension Archtype Name");
+            alert.setHeaderText(null);
+            alert.setContentText("Extension Archtype name cannot not be empty.");
+            alert.showAndWait();
+        } else if (extensionCode.getText().equals("")) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Invalid Extension Archtype Code");
+            alert.setHeaderText(null);
+            alert.setContentText("Extension Archtype code cannot not be empty.");
+            alert.showAndWait();
+        } else if (!RegexUtils.isPositiveInteger(extensionCode.getText())) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Invalid Extension Archtype Code");
+            alert.setHeaderText(null);
+            alert.setContentText("Extension Archtype code must be a positive integer.");
+            alert.showAndWait();
+        } else {
+            addExtensionArchtype();
+            Notifications.create()
+                    .title("Add Archtype")
+                    .text("Archtype added successfully!")
                     .show();
         }
     }
@@ -1184,6 +1240,13 @@ public class YGOProCardMakerController implements Initializable {
         archtypeCodeColumn.setCellValueFactory(new PropertyValueFactory<>("code"));
         archtypeTable.setItems(archtypeData);
         deleteArchtypeButton.setDisable(true);
+        baseArchtypes.setDisable(true);
+        extensionName.setDisable(true);
+        extensionCode.setDisable(true);
+        archtypeBaseLabel.setDisable(true);
+        extensionNameLabel.setDisable(true);
+        extensionCodeLabel.setDisable(true);
+        extensionArchtypeButton.setDisable(true);
     }
 
     private void initializeMenu() {
@@ -1340,23 +1403,26 @@ public class YGOProCardMakerController implements Initializable {
     }
 
     private void saveCard(Card card, boolean loaded) throws InvalidFieldException {
-        boolean invalidATK = !RegexUtils.isPositiveInteger(cardATK.getText());
-        boolean invalidDEF = !RegexUtils.isPositiveInteger(cardDEF.getText());
-        boolean invalidLevelRank = !RegexUtils.isPositiveInteger(cardLevelRank.getText());
-        boolean invalidLeftScale = !RegexUtils.isPositiveInteger(cardLeftScale.getText());
-        boolean invalidRightScale = !RegexUtils.isPositiveInteger(cardRightScale.getText());
-        boolean invalidSerial = !RegexUtils.isPositiveInteger(cardSerial.getText());
-        boolean invalidAlias = !RegexUtils.isPositiveInteger(ygoproAlias.getText());
-        if (invalidATK || invalidDEF || invalidLevelRank || invalidLeftScale || invalidRightScale || invalidSerial || invalidAlias) {
-            throw new InvalidFieldException("Invalid "
-                    + (invalidATK ? "ATK, " : "")
-                    + (invalidDEF ? "DEF, " : "")
-                    + (invalidLevelRank ? "Level/Rank, " : "")
-                    + (invalidLeftScale ? "LeftScale, " : "")
-                    + (invalidRightScale ? "RightScale, " : "")
-                    + (invalidSerial ? "Serial, " : "")
-                    + (invalidAlias ? "Alias, " : "")
-                    + "these field(s) must have have a integer number.");
+        if (!RegexUtils.isPositiveInteger(cardATK.getText())) {
+            throw new InvalidFieldException("ATK field must have have a integer number.");
+        }
+        if (!RegexUtils.isPositiveInteger(cardDEF.getText())) {
+            throw new InvalidFieldException("DEF field must have have a integer number.");
+        }
+        if (!RegexUtils.isPositiveInteger(cardLevelRank.getText())) {
+            throw new InvalidFieldException("Level/Rank field must have have a integer number.");
+        }
+        if (!RegexUtils.isPositiveInteger(cardLeftScale.getText())) {
+            throw new InvalidFieldException("Pendulum Left Scale field must have have a integer number.");
+        }
+        if (!RegexUtils.isPositiveInteger(cardLevelRank.getText())) {
+            throw new InvalidFieldException("Pendulum Right Scale field must have have a integer number.");
+        }
+        if (!RegexUtils.isPositiveInteger(cardSerial.getText())) {
+            throw new InvalidFieldException("Serial field must have have a integer number.");
+        }
+        if (!RegexUtils.isPositiveInteger(cardSerial.getText())) {
+            throw new InvalidFieldException("Alias field must have have a integer number.");
         }
         card.setName(cardName.getText())
                 .setType(cardType.getValue())
@@ -1627,6 +1693,13 @@ public class YGOProCardMakerController implements Initializable {
         cardData.clear();
         archtypeData.clear();
         deleteArchtypeButton.setDisable(true);
+        baseArchtypes.setDisable(true);
+        extensionName.setDisable(true);
+        extensionCode.setDisable(true);
+        archtypeBaseLabel.setDisable(true);
+        extensionNameLabel.setDisable(true);
+        extensionCodeLabel.setDisable(true);
+        extensionArchtypeButton.setDisable(true);
         ygoproArchtype.getItems().setAll(EMPTY);
         ygoproArchtype.getSelectionModel().selectFirst();
         ygoproSecondaryArchtype.getItems().setAll(EMPTY);
@@ -1663,9 +1736,18 @@ public class YGOProCardMakerController implements Initializable {
         archtypeData.stream().forEach(archtype -> {
             ygoproArchtype.getItems().add(archtype.getName());
             ygoproSecondaryArchtype.getItems().add(archtype.getName());
+            if (Integer.parseInt(archtype.getCode()) <= 0xFFF) {
+                baseArchtypes.getItems().add(archtype.getName());
+            }
         });
         deleteArchtypeButton.setDisable(archtypeData.isEmpty());
-        cardData.clear();
+        baseArchtypes.setDisable(baseArchtypes.getItems().isEmpty());
+        extensionName.setDisable(baseArchtypes.getItems().isEmpty());
+        extensionCode.setDisable(baseArchtypes.getItems().isEmpty());
+        archtypeBaseLabel.setDisable(baseArchtypes.getItems().isEmpty());
+        extensionNameLabel.setDisable(baseArchtypes.getItems().isEmpty());
+        extensionCodeLabel.setDisable(baseArchtypes.getItems().isEmpty());
+        extensionArchtypeButton.setDisable(baseArchtypes.getItems().isEmpty());
         JSONArray cards = json.getJSONArray("cards");
         for (int i = 0; i < cards.length(); i++) {
             cardData.add(Card.fromJSON(cards.getJSONObject(i)));
@@ -1769,12 +1851,36 @@ public class YGOProCardMakerController implements Initializable {
 
     private void addArchtype() {
         archtypeData.add(new Archtype(archtypeName.getText())
-                .setCode(archtypeCode.getText()));
+                .setCode("" + (Integer.parseInt(archtypeCode.getText()) & 0xFFF)));
         ygoproArchtype.getItems().add(archtypeName.getText());
         ygoproSecondaryArchtype.getItems().add(archtypeName.getText());
+        baseArchtypes.getItems().add(archtypeName.getText());
         if (deleteArchtypeButton.isDisabled()) {
             deleteArchtypeButton.setDisable(false);
         }
+        if (baseArchtypes.isDisabled()) {
+            baseArchtypes.setDisable(false);
+        }
+        if (extensionName.isDisabled()) {
+            extensionName.setDisable(false);
+        }
+        if (extensionCode.isDisabled()) {
+            extensionCode.setDisable(false);
+        }
+        if (extensionArchtypeButton.isDisabled()) {
+            extensionArchtypeButton.setDisable(false);
+        }
+        if (archtypeBaseLabel.isDisabled()) {
+            archtypeBaseLabel.setDisable(false);
+        }
+        if (extensionNameLabel.isDisabled()) {
+            extensionNameLabel.setDisable(false);
+        }
+        if (extensionCodeLabel.isDisabled()) {
+            extensionCodeLabel.setDisable(false);
+        }
+        archtypeName.setText("");
+        archtypeCode.setText("");
     }
 
     private void deleteArchtype(Archtype archtype) {
@@ -1787,6 +1893,9 @@ public class YGOProCardMakerController implements Initializable {
         archtypeData.remove(archtype);
         ygoproArchtype.getItems().remove(archtype.getName());
         ygoproSecondaryArchtype.getItems().remove(archtype.getName());
+        if (Integer.parseInt(archtype.getCode()) <= 0xFFF) {
+            baseArchtypes.getItems().remove(archtype.getName());
+        }
         cardData.forEach(c -> {
             if (c.getArchtype().equals(archtype.getName())) {
                 c.setArchtype("");
@@ -1798,5 +1907,24 @@ public class YGOProCardMakerController implements Initializable {
         if (archtypeData.isEmpty()) {
             deleteArchtypeButton.setDisable(true);
         }
+        if (baseArchtypes.getItems().isEmpty()) {
+            extensionName.setText("");
+            extensionCode.setText("");
+            baseArchtypes.setDisable(true);
+            extensionName.setDisable(true);
+            extensionCode.setDisable(true);
+            extensionArchtypeButton.setDisable(true);
+            archtypeBaseLabel.setDisable(true);
+            extensionNameLabel.setDisable(true);
+            extensionCodeLabel.setDisable(true);
+        }
+    }
+
+    private void addExtensionArchtype() {
+        String name = extensionName.getText() + " " + baseArchtypes.getValue();
+        archtypeData.add(new Archtype(name)
+                .setCode("" + (((Integer.parseInt(extensionCode.getText()) & 0xF) << 12) | (Integer.parseInt(archtypeData.get(archtypeData.indexOf(new Archtype(baseArchtypes.getValue()))).getCode()) & 0xFFF))));
+        ygoproArchtype.getItems().add(name);
+        ygoproSecondaryArchtype.getItems().add(name);
     }
 }

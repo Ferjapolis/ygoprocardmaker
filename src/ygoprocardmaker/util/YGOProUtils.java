@@ -35,15 +35,19 @@ public class YGOProUtils {
     }
 
     public static String computeArchtype(Card card, List<Archtype> archtypes) {
-        if (archtypes.isEmpty()) {
-            return "0";
-        }
-        String code = archtypes.get(archtypes.indexOf(new Archtype(card.getArchtype()))).getCode() + archtypes.get(archtypes.indexOf(new Archtype(card.getArchtype()))).getCode();
-        if (code.equals("")) {
-            return "0";
+        int archtype;
+        if (card.getArchtype().equals("")) {
+            archtype = 0;
         } else {
-            return code;
+            archtype = Integer.parseInt(archtypes.get(archtypes.indexOf(new Archtype(card.getArchtype()))).getCode());
         }
+        int secondaryArchtype;
+        if (card.getSecondaryArchtype().equals("")) {
+            secondaryArchtype = 0;
+        } else {
+            secondaryArchtype = Integer.parseInt(archtypes.get(archtypes.indexOf(new Archtype(card.getSecondaryArchtype()))).getCode());
+        }
+        return "" + ((secondaryArchtype << 16) | (archtype & 0xFFFF));
     }
 
     public static String computeType(Card card) {
@@ -62,7 +66,7 @@ public class YGOProUtils {
         int levelRank = Integer.parseInt(card.getLevelRank().equals("") ? "0" : card.getLevelRank());
         int leftScale = Integer.parseInt(card.getLeftScale().equals("") ? "0" : card.getLeftScale());
         int rightScale = Integer.parseInt(card.getRightScale().equals("") ? "0" : card.getRightScale());
-        return "" + (((leftScale << 24) & 0xFF) + ((rightScale << 16) & 0xFF) + levelRank & 0xFFFF);
+        return "" + (((leftScale << 24) & 0xFF) | ((rightScale << 16) & 0xFF) | (levelRank & 0xFFFF));
     }
 
     public static String computeMonsterType(Card card) {
