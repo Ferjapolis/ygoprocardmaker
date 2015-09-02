@@ -1091,6 +1091,7 @@ public class YGOProCardMakerController implements Initializable {
                 || !ygoproAlias.getText().equals(card.getAlias())
                 || !ygoproArchtype.getValue().equals(card.getArchtype())
                 || !ygoproSecondaryArchtype.getValue().equals(card.getSecondaryArchtype())
+                || !ygoproFormat.getValue().equals(card.getFormat())
                 || ygoproSTDestroy.isSelected() != card.issTDestroy()
                 || ygoproBacktoHand.isSelected() != card.isBacktoHand()
                 || ygoproDraw.isSelected() != card.isDraw()
@@ -1703,6 +1704,7 @@ public class YGOProCardMakerController implements Initializable {
         extensionNameLabel.setDisable(true);
         extensionCodeLabel.setDisable(true);
         extensionArchtypeButton.setDisable(true);
+        baseArchtypes.getItems().clear();
         ygoproArchtype.getItems().setAll(EMPTY);
         ygoproArchtype.getSelectionModel().selectFirst();
         ygoproSecondaryArchtype.getItems().setAll(EMPTY);
@@ -1725,6 +1727,7 @@ public class YGOProCardMakerController implements Initializable {
         setAuthor.setText(json.getString("author"));
         setDescription.setText(json.getString("description"));
         archtypeData.clear();
+        baseArchtypes.getItems().clear();
         ygoproArchtype.getItems().clear();
         ygoproArchtype.getItems().setAll(EMPTY);
         ygoproSecondaryArchtype.getItems().clear();

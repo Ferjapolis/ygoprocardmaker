@@ -876,6 +876,7 @@ public class Card {
                 || !card1.alias.equals(card2.alias)
                 || !card1.archtype.equals(card2.archtype)
                 || !card1.secondaryArchtype.equals(card2.secondaryArchtype)
+                || !card1.format.equals(card2.format)
                 || card1.sTDestroy != card2.sTDestroy
                 || card1.backtoHand != card2.backtoHand
                 || card1.draw != card2.draw

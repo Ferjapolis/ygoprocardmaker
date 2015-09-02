@@ -17,7 +17,7 @@ public class CardFormat {
             if (index == -1) {
                 throw new IllegalArgumentException();
             }
-            return index;
+            return index + 1;
         } catch (Exception e) {
             throw new IllegalArgumentException();
         }
