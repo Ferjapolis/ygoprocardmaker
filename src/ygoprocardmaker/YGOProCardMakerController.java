@@ -636,6 +636,9 @@ public class YGOProCardMakerController implements Initializable {
 
     @FXML
     private void handleDeleteArchtypeButton() {
+        if (archtypeTable.getSelectionModel().getSelectedItem() == null) {
+            return;
+        }
         Alert alert = new Alert(AlertType.CONFIRMATION);
         alert.setTitle("Delete Archtype");
         alert.setHeaderText(null);
@@ -644,7 +647,7 @@ public class YGOProCardMakerController implements Initializable {
         ButtonType buttonTypeDelete = new ButtonType("Delete");
         alert.getButtonTypes().setAll(buttonTypeDelete, new ButtonType("Cancel"));
         if (alert.showAndWait().get() == buttonTypeDelete) {
-            deleteArchtype(archtypeData.get(archtypeTable.getSelectionModel().getSelectedIndex()));
+            deleteArchtype(archtypeData.get(archtypeData.indexOf(archtypeTable.getSelectionModel().getSelectedItem())));
             Notifications.create()
                     .title("Delete Archtype")
                     .text("Archtype deleted successfully!")
