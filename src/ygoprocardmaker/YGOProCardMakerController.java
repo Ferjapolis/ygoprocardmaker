@@ -1751,6 +1751,7 @@ public class YGOProCardMakerController implements Initializable {
         extensionNameLabel.setDisable(baseArchtypes.getItems().isEmpty());
         extensionCodeLabel.setDisable(baseArchtypes.getItems().isEmpty());
         extensionArchtypeButton.setDisable(baseArchtypes.getItems().isEmpty());
+        cardData.clear();
         JSONArray cards = json.getJSONArray("cards");
         for (int i = 0; i < cards.length(); i++) {
             cardData.add(Card.fromJSON(cards.getJSONObject(i)));
