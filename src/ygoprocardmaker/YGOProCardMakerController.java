@@ -59,7 +59,6 @@ import org.json.JSONObject;
 import ygoprocardmaker.data.Archtype;
 import ygoprocardmaker.data.Card;
 import static ygoprocardmaker.enumerate.CardAttribute.*;
-import static ygoprocardmaker.enumerate.CardLevelRank.*;
 import static ygoprocardmaker.enumerate.CardMonsterType.*;
 import static ygoprocardmaker.enumerate.CardType.*;
 import static ygoprocardmaker.enumerate.CardFormat.*;
@@ -97,7 +96,13 @@ public class YGOProCardMakerController implements Initializable {
     private ChoiceBox<String> cardAttribute;
 
     @FXML
-    private ChoiceBox<String> cardLevelRank;
+    private TextField cardLevelRank;
+
+    @FXML
+    private TextField cardLeftScale;
+
+    @FXML
+    private TextField cardRightScale;
 
     @FXML
     private ChoiceBox<String> cardMonsterType;
@@ -113,6 +118,9 @@ public class YGOProCardMakerController implements Initializable {
 
     @FXML
     private Label cardLevelRankLabel;
+
+    @FXML
+    private Label cardPendulumScaleLabel;
 
     @FXML
     private Label cardMonsterTypeLabel;
@@ -342,6 +350,12 @@ public class YGOProCardMakerController implements Initializable {
 
     @FXML
     private TableColumn<Card, String> levelRankColumn;
+
+    @FXML
+    private TableColumn<Card, String> leftScaleColumn;
+
+    @FXML
+    private TableColumn<Card, String> rightScaleColumn;
 
     @FXML
     private TableColumn<Card, String> monsterTypeColumn;
@@ -1007,7 +1021,9 @@ public class YGOProCardMakerController implements Initializable {
                 || !cardSubType.getValue().equals(card.getSubType())
                 || (isSpellTrap ? false : !cardSubSubType.getValue().equals(card.getSubSubType()))
                 || (isSpellTrap ? false : !cardAttribute.getValue().equals(card.getAttribute()))
-                || (isSpellTrap ? false : !cardLevelRank.getValue().equals(card.getLevelRank()))
+                || (isSpellTrap ? false : !cardLevelRank.getText().equals(card.getLevelRank()))
+                || (isSpellTrap ? false : !cardLeftScale.getText().equals(card.getLeftScale()))
+                || (isSpellTrap ? false : !cardRightScale.getText().equals(card.getRightScale()))
                 || (isSpellTrap ? false : !cardMonsterType.getValue().equals(card.getMonsterType()))
                 || (isSpellTrap ? false : !cardATK.getText().equals(card.getAtk()))
                 || (isSpellTrap ? false : !cardDEF.getText().equals(card.getDef()))
@@ -1134,10 +1150,11 @@ public class YGOProCardMakerController implements Initializable {
         cardSubSubType.getSelectionModel().selectFirst();
         cardAttribute.getItems().setAll(ATTRIBUTES);
         cardAttribute.getSelectionModel().selectFirst();
-        cardLevelRank.getItems().setAll(LEVEL_RANKS);
-        cardLevelRank.getSelectionModel().select("4");
         cardMonsterType.getItems().setAll(MONSTER_TYPES);
         cardMonsterType.getSelectionModel().selectFirst();
+        cardPendulumScaleLabel.setDisable(true);
+        cardLeftScale.setDisable(true);
+        cardRightScale.setDisable(true);
         cardPicture.setImage(new Image(getClass().getResourceAsStream("resource/pics/unknown.png")));
     }
 
@@ -1185,6 +1202,8 @@ public class YGOProCardMakerController implements Initializable {
         subSubTypeColumn.setCellValueFactory(new PropertyValueFactory<>("subSubType"));
         attributeColumn.setCellValueFactory(new PropertyValueFactory<>("attribute"));
         levelRankColumn.setCellValueFactory(new PropertyValueFactory<>("levelRank"));
+        leftScaleColumn.setCellValueFactory(new PropertyValueFactory<>("leftScale"));
+        rightScaleColumn.setCellValueFactory(new PropertyValueFactory<>("rightScale"));
         monsterTypeColumn.setCellValueFactory(new PropertyValueFactory<>("monsterType"));
         atkColumn.setCellValueFactory(new PropertyValueFactory<>("atk"));
         defColumn.setCellValueFactory(new PropertyValueFactory<>("def"));
@@ -1240,6 +1259,9 @@ public class YGOProCardMakerController implements Initializable {
         cardMonsterTypeLabel.setDisable(isSpellTrap);
         cardATKDEFLabel.setDisable(isSpellTrap);
         slashLabel.setDisable(isSpellTrap);
+        cardPendulumScaleLabel.setDisable(!currentCardType.equals("Pendulum"));
+        cardLeftScale.setDisable(!currentCardType.equals("Pendulum"));
+        cardRightScale.setDisable(!currentCardType.equals("Pendulum"));
         if (currentCardType.equals("Xyz")) {
             cardLevelRankLabel.setText("Rank:");
         } else {
@@ -1291,6 +1313,9 @@ public class YGOProCardMakerController implements Initializable {
         } else {
             cardLoreEffectLabel.setText("Effect:");
         }
+        cardPendulumScaleLabel.setDisable(!currentCardType.equals("Pendulum") && !newSubCardType.equals("Pendulum"));
+        cardLeftScale.setDisable(!currentCardType.equals("Pendulum") && !newSubCardType.equals("Pendulum"));
+        cardRightScale.setDisable(!currentCardType.equals("Pendulum") && !newSubCardType.equals("Pendulum"));
         cardSubSubType.getSelectionModel().selectFirst();
     }
 
@@ -1317,12 +1342,18 @@ public class YGOProCardMakerController implements Initializable {
     private void saveCard(Card card, boolean loaded) throws InvalidFieldException {
         boolean invalidATK = !RegexUtils.isPositiveInteger(cardATK.getText());
         boolean invalidDEF = !RegexUtils.isPositiveInteger(cardDEF.getText());
+        boolean invalidLevelRank = !RegexUtils.isPositiveInteger(cardLevelRank.getText());
+        boolean invalidLeftScale = !RegexUtils.isPositiveInteger(cardLeftScale.getText());
+        boolean invalidRightScale = !RegexUtils.isPositiveInteger(cardRightScale.getText());
         boolean invalidSerial = !RegexUtils.isPositiveInteger(cardSerial.getText());
         boolean invalidAlias = !RegexUtils.isPositiveInteger(ygoproAlias.getText());
-        if (invalidATK || invalidDEF || invalidSerial) {
+        if (invalidATK || invalidDEF || invalidLevelRank || invalidLeftScale || invalidRightScale || invalidSerial || invalidAlias) {
             throw new InvalidFieldException("Invalid "
                     + (invalidATK ? "ATK, " : "")
                     + (invalidDEF ? "DEF, " : "")
+                    + (invalidLevelRank ? "Level/Rank, " : "")
+                    + (invalidLeftScale ? "LeftScale, " : "")
+                    + (invalidRightScale ? "RightScale, " : "")
                     + (invalidSerial ? "Serial, " : "")
                     + (invalidAlias ? "Alias, " : "")
                     + "these field(s) must have have a integer number.");
@@ -1332,7 +1363,9 @@ public class YGOProCardMakerController implements Initializable {
                 .setSubType(cardSubType.getValue())
                 .setSubSubType(cardSubSubType.getValue())
                 .setAttribute(cardAttribute.getValue())
-                .setLevelRank(cardLevelRank.getValue())
+                .setLevelRank(cardLevelRank.getText())
+                .setLeftScale(cardLeftScale.getText())
+                .setRightScale(cardRightScale.getText())
                 .setMonsterType(cardMonsterType.getValue())
                 .setAtk(cardATK.getText())
                 .setDef(cardDEF.getText())
@@ -1405,7 +1438,9 @@ public class YGOProCardMakerController implements Initializable {
         cardSubType.setValue(card.getSubType());
         cardSubSubType.setValue(card.getSubSubType());
         cardAttribute.setValue(card.getAttribute());
-        cardLevelRank.setValue(card.getLevelRank());
+        cardLevelRank.setText(card.getLevelRank());
+        cardLeftScale.setText(card.getLeftScale());
+        cardRightScale.setText(card.getRightScale());
         cardMonsterType.setValue(card.getMonsterType());
         cardATK.setText(card.getAtk());
         cardDEF.setText(card.getDef());
@@ -1493,7 +1528,9 @@ public class YGOProCardMakerController implements Initializable {
         cardSubType.setValue("Normal");
         cardSubSubType.setValue("");
         cardAttribute.setValue("EARTH");
-        cardLevelRank.setValue("4");
+        cardLevelRank.setText("");
+        cardLeftScale.setText("");
+        cardRightScale.setText("");
         cardMonsterType.setValue("Warrior");
         cardATK.setText("");
         cardDEF.setText("");

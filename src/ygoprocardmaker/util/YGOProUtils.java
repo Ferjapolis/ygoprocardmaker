@@ -59,7 +59,10 @@ public class YGOProUtils {
     }
 
     public static String computeLevelRank(Card card) {
-        return card.getLevelRank().equals("") ? "0" : card.getLevelRank();
+        int levelRank = Integer.parseInt(card.getLevelRank().equals("") ? "0" : card.getLevelRank());
+        int leftScale = Integer.parseInt(card.getLeftScale().equals("") ? "0" : card.getLeftScale());
+        int rightScale = Integer.parseInt(card.getRightScale().equals("") ? "0" : card.getRightScale());
+        return "" + (((leftScale << 24) & 0xFF) + ((rightScale << 16) & 0xFF) + levelRank & 0xFFFF);
     }
 
     public static String computeMonsterType(Card card) {

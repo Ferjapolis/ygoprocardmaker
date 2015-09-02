@@ -26,6 +26,10 @@ public class Card {
     private String attribute;
 
     private String levelRank;
+    
+    private String leftScale;
+    
+    private String rightScale;
 
     private String monsterType;
 
@@ -177,6 +181,14 @@ public class Card {
 
     public String getLevelRank() {
         return levelRank;
+    }
+
+    public String getLeftScale() {
+        return leftScale;
+    }
+
+    public String getRightScale() {
+        return rightScale;
     }
 
     public String getMonsterType() {
@@ -442,6 +454,16 @@ public class Card {
 
     public Card setLevelRank(String levelRank) {
         this.levelRank = levelRank;
+        return this;
+    }
+
+    public Card setLeftScale(String leftScale) {
+        this.leftScale = leftScale;
+        return this;
+    }
+
+    public Card setRightScale(String rightScale) {
+        this.rightScale = rightScale;
         return this;
     }
 
@@ -774,6 +796,8 @@ public class Card {
                 .setSubSubType(json.getString("subSubType"))
                 .setAttribute(json.getString("attribute"))
                 .setLevelRank(json.getString("levelRank"))
+                .setLeftScale(json.getString("leftScale"))
+                .setRightScale(json.getString("rightScale"))
                 .setMonsterType(json.getString("monsterType"))
                 .setAtk(RegexUtils.isPositiveInteger(json.getString("atk")) ? json.getString("atk") : "")
                 .setDef(RegexUtils.isPositiveInteger(json.getString("def")) ? json.getString("def") : "")
@@ -842,6 +866,8 @@ public class Card {
                 || !card1.subSubType.equals(card2.subSubType)
                 || !card1.attribute.equals(card2.attribute)
                 || !card1.levelRank.equals(card2.levelRank)
+                || !card1.leftScale.equals(card2.leftScale)
+                || !card1.rightScale.equals(card2.rightScale)
                 || !card1.monsterType.equals(card2.monsterType)
                 || !card1.atk.equals(card2.atk)
                 || !card1.def.equals(card2.def)
