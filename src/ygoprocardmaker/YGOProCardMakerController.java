@@ -9,8 +9,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -1768,45 +1768,46 @@ public class YGOProCardMakerController implements Initializable {
 
     private void exportSet() throws ClassNotFoundException, SQLException, IOException {
         Connection conn = null;
-        Statement stmt = null;
+        PreparedStatement stmt = null;
         try {
             Class.forName("org.sqlite.JDBC");
             conn = DriverManager.getConnection("jdbc:sqlite:cards.cdb");
             conn.setAutoCommit(false);
-            stmt = conn.createStatement();
             for (Card card : cardData) {
-                stmt.executeUpdate("INSERT OR REPLACE INTO \"datas\" VALUES (\""
-                        + YGOProUtils.computeSerial(card) + "\",\""
-                        + YGOProUtils.computeFormat(card) + "\",\""
-                        + YGOProUtils.computeAlias(card) + "\",\""
-                        + YGOProUtils.computeArchtype(card, archtypeData) + "\",\""
-                        + YGOProUtils.computeType(card) + "\",\""
-                        + YGOProUtils.computeATK(card) + "\",\""
-                        + YGOProUtils.computeDEF(card) + "\",\""
-                        + YGOProUtils.computeLevelRank(card) + "\",\""
-                        + YGOProUtils.computeMonsterType(card) + "\",\""
-                        + YGOProUtils.computeMonsterAttribute(card) + "\",\""
-                        + YGOProUtils.computeEffectCategories(card) + "\");");
-                stmt.executeUpdate("INSERT OR REPLACE INTO \"texts\" VALUES (\""
-                        + YGOProUtils.computeSerial(card) + "\",\""
-                        + YGOProUtils.computeName(card) + "\",\""
-                        + YGOProUtils.computeLoreEffect(card) + "\",\""
-                        + YGOProUtils.computeString1(card) + "\",\""
-                        + YGOProUtils.computeString2(card) + "\",\""
-                        + YGOProUtils.computeString3(card) + "\",\""
-                        + YGOProUtils.computeString4(card) + "\",\""
-                        + YGOProUtils.computeString5(card) + "\",\""
-                        + YGOProUtils.computeString6(card) + "\",\""
-                        + YGOProUtils.computeString7(card) + "\",\""
-                        + YGOProUtils.computeString8(card) + "\",\""
-                        + YGOProUtils.computeString9(card) + "\",\""
-                        + YGOProUtils.computeString10(card) + "\",\""
-                        + YGOProUtils.computeString11(card) + "\",\""
-                        + YGOProUtils.computeString12(card) + "\",\""
-                        + YGOProUtils.computeString13(card) + "\",\""
-                        + YGOProUtils.computeString14(card) + "\",\""
-                        + YGOProUtils.computeString15(card) + "\",\""
-                        + YGOProUtils.computeString16(card) + "\");");
+                stmt = conn.prepareStatement("INSERT OR REPLACE INTO \"datas\" VALUES (?, ?, ?, ?, ?, ?, ? ,?, ?, ?, ?)");
+                stmt.setString(1, YGOProUtils.computeSerial(card));
+                stmt.setString(2, YGOProUtils.computeFormat(card));
+                stmt.setString(3, YGOProUtils.computeAlias(card));
+                stmt.setString(4, YGOProUtils.computeArchtype(card, archtypeData));
+                stmt.setString(5, YGOProUtils.computeType(card));
+                stmt.setString(6, YGOProUtils.computeATK(card));
+                stmt.setString(7, YGOProUtils.computeDEF(card));
+                stmt.setString(8, YGOProUtils.computeLevelRank(card));
+                stmt.setString(9, YGOProUtils.computeMonsterType(card));
+                stmt.setString(10, YGOProUtils.computeMonsterAttribute(card));
+                stmt.setString(11, YGOProUtils.computeEffectCategories(card));
+                stmt.executeUpdate();
+                stmt = conn.prepareStatement("INSERT OR REPLACE INTO \"texts\" VALUES (?, ?, ?, ?, ?, ?, ? ,?, ?, ?, ?, ?, ?, ?, ?, ?, ? , ?, ?)");
+                stmt.setString(1, YGOProUtils.computeSerial(card));
+                stmt.setString(2, YGOProUtils.computeName(card));
+                stmt.setString(3, YGOProUtils.computeLoreEffect(card));
+                stmt.setString(4, YGOProUtils.computeString1(card));
+                stmt.setString(5, YGOProUtils.computeString2(card));
+                stmt.setString(6, YGOProUtils.computeString3(card));
+                stmt.setString(7, YGOProUtils.computeString4(card));
+                stmt.setString(8, YGOProUtils.computeString5(card));
+                stmt.setString(9, YGOProUtils.computeString6(card));
+                stmt.setString(10, YGOProUtils.computeString7(card));
+                stmt.setString(11, YGOProUtils.computeString8(card));
+                stmt.setString(12, YGOProUtils.computeString9(card));
+                stmt.setString(13, YGOProUtils.computeString10(card));
+                stmt.setString(14, YGOProUtils.computeString11(card));
+                stmt.setString(15, YGOProUtils.computeString12(card));
+                stmt.setString(16, YGOProUtils.computeString13(card));
+                stmt.setString(17, YGOProUtils.computeString14(card));
+                stmt.setString(18, YGOProUtils.computeString15(card));
+                stmt.setString(19, YGOProUtils.computeString16(card));
+                stmt.executeUpdate();
                 if (!card.getType().equals("Monster") || !card.getSubType().equals("Normal")) {
                     File script = new File("script" + File.separator + "c" + card.getSerial() + ".lua");
                     try (FileWriter file = new FileWriter(script)) {
