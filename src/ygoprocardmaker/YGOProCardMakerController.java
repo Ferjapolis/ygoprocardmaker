@@ -43,6 +43,7 @@ import javafx.scene.input.DataFormat;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
@@ -473,45 +474,6 @@ public class YGOProCardMakerController implements Initializable {
     }
 
     @FXML
-    private void handleOpenCardButton() {
-        if (cardChanged()) {
-            Alert alert = new Alert(AlertType.CONFIRMATION);
-            alert.setTitle("Open Card");
-            alert.setHeaderText(null);
-            alert.setContentText("Do you wish to save before opening another card?\n"
-                    + "If you don't, changes will be lost.");
-            ButtonType buttonTypeOpenSave = new ButtonType("Save & Open");
-            ButtonType buttonTypeCancel = new ButtonType("Cancel");
-            alert.getButtonTypes().setAll(buttonTypeOpenSave, new ButtonType("Open"), buttonTypeCancel);
-            Optional<ButtonType> result = alert.showAndWait();
-            if (result.get() == buttonTypeOpenSave) {
-                try {
-                    saveCard(getCardById(), true);
-                } catch (InvalidFieldException ex) {
-                    alert = new Alert(AlertType.WARNING);
-                    alert.setTitle("Save Card");
-                    alert.setHeaderText(null);
-                    alert.setContentText(ex.getMessage());
-                    alert.showAndWait();
-                    return;
-                }
-                Notifications.create()
-                        .title("Save Card")
-                        .text("Card saved successfully!")
-                        .show();
-            } else if (result.get() == buttonTypeCancel) {
-                return;
-            }
-        }
-        if (openCard(cardTable.getSelectionModel().getSelectedItem())) {
-            Notifications.create()
-                    .title("Open Card")
-                    .text("Card opened successfully!")
-                    .show();
-        }
-    }
-
-    @FXML
     private void handleNewCardButton() {
         if (cardChanged()) {
             Alert alert = new Alert(AlertType.CONFIRMATION);
@@ -521,7 +483,7 @@ public class YGOProCardMakerController implements Initializable {
                     + "If you don't, changes will be lost.");
             ButtonType buttonTypeNewSave = new ButtonType("Save & New");
             ButtonType buttonTypeCancel = new ButtonType("Cancel");
-            alert.getButtonTypes().setAll(buttonTypeNewSave, new ButtonType("New"), buttonTypeCancel);
+            alert.getButtonTypes().setAll(buttonTypeNewSave, new ButtonType("Ignore & New"), buttonTypeCancel);
             Optional<ButtonType> result = alert.showAndWait();
             if (result.get() == buttonTypeNewSave) {
                 try {
@@ -701,7 +663,7 @@ public class YGOProCardMakerController implements Initializable {
                         + "If you don't, changes will be lost.");
                 ButtonType buttonTypeSaveNew = new ButtonType("Save & New");
                 ButtonType buttonTypeCancel = new ButtonType("Cancel");
-                alert.getButtonTypes().setAll(buttonTypeSaveNew, new ButtonType("New"), buttonTypeCancel);
+                alert.getButtonTypes().setAll(buttonTypeSaveNew, new ButtonType("Ignore & New"), buttonTypeCancel);
                 Optional<ButtonType> result = alert.showAndWait();
                 if (result.get() == buttonTypeSaveNew) {
                     try {
@@ -722,10 +684,10 @@ public class YGOProCardMakerController implements Initializable {
                             alert.setHeaderText(null);
                             alert.setContentText("Do you wish to save the current card before saving the set?\n"
                                     + "If you don't, changes will be lost.");
-                            ButtonType buttonTypeSaveExport = new ButtonType("Save & Export");
-                            alert.getButtonTypes().setAll(buttonTypeSaveExport, new ButtonType("Export"), buttonTypeCancel);
+                            ButtonType buttonTypeSave = new ButtonType("Save Card");
+                            alert.getButtonTypes().setAll(buttonTypeSave, new ButtonType("Don't Save Card"), buttonTypeCancel);
                             result = alert.showAndWait();
-                            if (result.get() == buttonTypeSaveExport) {
+                            if (result.get() == buttonTypeSave) {
                                 try {
                                     saveCard(getCardById(), true);
                                     Notifications.create()
@@ -787,7 +749,7 @@ public class YGOProCardMakerController implements Initializable {
                         + "If you don't, changes will be lost.");
                 ButtonType buttonTypeSaveOpen = new ButtonType("Save & Open");
                 ButtonType buttonTypeCancel = new ButtonType("Cancel");
-                alert.getButtonTypes().setAll(buttonTypeSaveOpen, new ButtonType("Open"), buttonTypeCancel);
+                alert.getButtonTypes().setAll(buttonTypeSaveOpen, new ButtonType("Ignore & Open"), buttonTypeCancel);
                 Optional<ButtonType> result = alert.showAndWait();
                 if (result.get() == buttonTypeSaveOpen) {
                     try {
@@ -808,10 +770,10 @@ public class YGOProCardMakerController implements Initializable {
                             alert.setHeaderText(null);
                             alert.setContentText("Do you wish to save the current card before saving the set?\n"
                                     + "If you don't, changes will be lost.");
-                            ButtonType buttonTypeSaveExport = new ButtonType("Save & Export");
-                            alert.getButtonTypes().setAll(buttonTypeSaveExport, new ButtonType("Export"), buttonTypeCancel);
+                            ButtonType buttonTypeSave = new ButtonType("Save");
+                            alert.getButtonTypes().setAll(buttonTypeSave, new ButtonType("Don't Save"), buttonTypeCancel);
                             result = alert.showAndWait();
-                            if (result.get() == buttonTypeSaveExport) {
+                            if (result.get() == buttonTypeSave) {
                                 try {
                                     saveCard(getCardById(), true);
                                     Notifications.create()
@@ -886,11 +848,11 @@ public class YGOProCardMakerController implements Initializable {
             alert.setHeaderText(null);
             alert.setContentText("Do you wish to save the current card before saving the set?\n"
                     + "If you don't, changes will be lost.");
-            ButtonType buttonTypeSaveExport = new ButtonType("Save & Export");
+            ButtonType buttonTypeSave = new ButtonType("Save Card");
             ButtonType buttonTypeCancel = new ButtonType("Cancel");
-            alert.getButtonTypes().setAll(buttonTypeSaveExport, new ButtonType("Export"), buttonTypeCancel);
+            alert.getButtonTypes().setAll(buttonTypeSave, new ButtonType("Don't Save Card"), buttonTypeCancel);
             Optional<ButtonType> result = alert.showAndWait();
-            if (result.get() == buttonTypeSaveExport) {
+            if (result.get() == buttonTypeSave) {
                 try {
                     saveCard(getCardById(), true);
                     Notifications.create()
@@ -948,11 +910,11 @@ public class YGOProCardMakerController implements Initializable {
             alert.setHeaderText(null);
             alert.setContentText("Do you wish to save the current card before saving the set?\n"
                     + "If you don't, changes will be lost.");
-            ButtonType buttonTypeSaveExport = new ButtonType("Save & Export");
+            ButtonType buttonTypeSave = new ButtonType("Save Card");
             ButtonType buttonTypeCancel = new ButtonType("Cancel");
-            alert.getButtonTypes().setAll(buttonTypeSaveExport, new ButtonType("Export"), buttonTypeCancel);
+            alert.getButtonTypes().setAll(buttonTypeSave, new ButtonType("Don't Save Card"), buttonTypeCancel);
             Optional<ButtonType> result = alert.showAndWait();
-            if (result.get() == buttonTypeSaveExport) {
+            if (result.get() == buttonTypeSave) {
                 try {
                     saveCard(getCardById(), true);
                     Notifications.create()
@@ -1277,6 +1239,48 @@ public class YGOProCardMakerController implements Initializable {
         loreEffectColumn.setCellValueFactory(new PropertyValueFactory<>("loreEffect"));
         serialColumn.setCellValueFactory(new PropertyValueFactory<>("serial"));
         cardTable.setItems(cardData);
+        cardTable.setOnMousePressed((MouseEvent event) -> {
+            if (event.isPrimaryButtonDown()) {
+                if (cardChanged()) {
+                    Alert alert = new Alert(AlertType.CONFIRMATION);
+                    alert.setTitle("Open Card");
+                    alert.setHeaderText(null);
+                    alert.setContentText("Do you wish to save before opening another card?\n"
+                            + "If you don't, changes will be lost.");
+                    ButtonType buttonTypeOpenSave = new ButtonType("Save & Open");
+                    ButtonType buttonTypeCancel = new ButtonType("Cancel");
+                    alert.getButtonTypes().setAll(buttonTypeOpenSave, new ButtonType("Ignore & Open"), buttonTypeCancel);
+                    Optional<ButtonType> result = alert.showAndWait();
+                    if (result.get() == buttonTypeOpenSave) {
+                        try {
+                            saveCard(getCardById(), true);
+                        } catch (InvalidFieldException ex) {
+                            alert = new Alert(AlertType.WARNING);
+                            alert.setTitle("Save Card");
+                            alert.setHeaderText(null);
+                            alert.setContentText(ex.getMessage());
+                            alert.showAndWait();
+                            return;
+                        }
+                        Notifications.create()
+                                .title("Save Card")
+                                .text("Card saved successfully!")
+                                .show();
+                    } else if (result.get() == buttonTypeCancel) {
+                        return;
+                    }
+                }
+                Card card = cardTable.getSelectionModel().getSelectedItem();
+                if (card.getId() != currentCardId) {
+                    if (openCard(card)) {
+                        Notifications.create()
+                                .title("Open Card")
+                                .text("Card opened successfully!")
+                                .show();
+                    }
+                }
+            }
+        });
         Card card = new Card(currentCardId);
         cardData.add(card);
         try {
