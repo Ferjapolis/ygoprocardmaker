@@ -61,4 +61,9 @@ public class Archtype {
     public static boolean differ(Archtype arch1, Archtype arch2) {
         return !arch1.name.equals(arch2.name) || !arch1.code.equals(arch2.code);
     }
+
+    @Override
+    public String toString() {
+        return "Archtype{" + "name=" + name + ", code=" + code + '}';
+    }
 }

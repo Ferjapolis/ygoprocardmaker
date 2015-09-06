@@ -10,11 +10,13 @@ import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -63,6 +65,7 @@ import static ygoprocardmaker.enumerate.CardAttribute.*;
 import static ygoprocardmaker.enumerate.CardMonsterType.*;
 import static ygoprocardmaker.enumerate.CardType.*;
 import static ygoprocardmaker.enumerate.CardFormat.*;
+import ygoprocardmaker.exception.ExportOperationCancelled;
 import ygoprocardmaker.exception.InvalidFieldException;
 import ygoprocardmaker.exception.InvalidPictureException;
 import ygoprocardmaker.util.FileUtils;
@@ -1014,6 +1017,7 @@ public class YGOProCardMakerController implements Initializable {
             alert.setHeaderText(null);
             alert.setContentText("Couldn't save image or script file.");
             JavaFXUtils.setExceptionAlert(alert, ex).showAndWait();
+        } catch (ExportOperationCancelled ex) {
         }
     }
 
@@ -1272,12 +1276,7 @@ public class YGOProCardMakerController implements Initializable {
                 }
                 Card card = cardTable.getSelectionModel().getSelectedItem();
                 if (card.getId() != currentCardId) {
-                    if (openCard(card)) {
-                        Notifications.create()
-                                .title("Open Card")
-                                .text("Card opened successfully!")
-                                .show();
-                    }
+                    openCard(card);
                 }
             }
         });
@@ -1502,9 +1501,9 @@ public class YGOProCardMakerController implements Initializable {
         cardData.set(cardData.indexOf(card), card);
     }
 
-    private boolean openCard(Card card) {
+    private void openCard(Card card) {
         if (card == null) {
-            return false;
+            return;
         }
         currentCardId = card.getId();
         cardName.setText(card.getName());
@@ -1580,7 +1579,6 @@ public class YGOProCardMakerController implements Initializable {
             cardPicture.setImage(new Image(getClass().getResourceAsStream("resource/pics/unknown.png")));
         }
         cardTable.getSelectionModel().select(card);
-        return true;
     }
 
     private int getGreatestUnusedId() {
@@ -1766,15 +1764,61 @@ public class YGOProCardMakerController implements Initializable {
         openCard(cardData.get(0));
     }
 
-    private void exportSet() throws ClassNotFoundException, SQLException, IOException {
+    private Card cardOverrides(Connection conn, Card card) throws SQLException {
+        PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(*) FROM texts WHERE id=? AND name<>?");
+        stmt.setString(1, YGOProUtils.computeSerial(card));
+        stmt.setString(2, YGOProUtils.computeName(card));
+        ResultSet rs = stmt.executeQuery();
+        rs.next();
+        if (rs.getInt(1) > 0) {
+            stmt = conn.prepareStatement("SELECT name FROM texts WHERE id=? AND name<>?");
+            stmt.setString(1, YGOProUtils.computeSerial(card));
+            stmt.setString(2, YGOProUtils.computeName(card));
+            rs = stmt.executeQuery();
+            return new Card(card.getId()).setName(rs.getString("name"));
+        }
+        return null;
+    }
+
+    private class Cards {
+
+        public Cards(Card oldCard, Card newCard) {
+            this.oldCard = oldCard;
+            this.newCard = newCard;
+        }
+
+        private final Card oldCard, newCard;
+    }
+
+    private void exportSet() throws ClassNotFoundException, SQLException, IOException, ExportOperationCancelled {
+        exportSet(c -> {
+            Alert alert = new Alert(AlertType.CONFIRMATION);
+            alert.setTitle("Override Card");
+            alert.setHeaderText(null);
+            alert.setContentText(c.newCard.getName() + " overrides " + c.oldCard.getName() + ". Export anyway?");
+            ButtonType buttonTypeExportCard = new ButtonType("Export Card");
+            alert.getButtonTypes().setAll(buttonTypeExportCard, new ButtonType("Cancel All"));
+            return alert.showAndWait().get() != buttonTypeExportCard;
+        });
+    }
+
+    private void exportSet(Predicate<Cards> predicate) throws ClassNotFoundException, SQLException, IOException, ExportOperationCancelled {
         Connection conn = null;
         PreparedStatement stmt = null;
         try {
             Class.forName("org.sqlite.JDBC");
             conn = DriverManager.getConnection("jdbc:sqlite:cards.cdb");
             conn.setAutoCommit(false);
+            for (Card newCard : cardData) {
+                Card oldCard;
+                if ((oldCard = cardOverrides(conn, newCard)) != null) {
+                    if (predicate.test(new Cards(oldCard, newCard))) {
+                        throw new ExportOperationCancelled();
+                    }
+                }
+            }
             for (Card card : cardData) {
-                stmt = conn.prepareStatement("INSERT OR REPLACE INTO \"datas\" VALUES (?, ?, ?, ?, ?, ?, ? ,?, ?, ?, ?)");
+                stmt = conn.prepareStatement("INSERT OR REPLACE INTO datas VALUES (?, ?, ?, ?, ?, ?, ? ,?, ?, ?, ?)");
                 stmt.setString(1, YGOProUtils.computeSerial(card));
                 stmt.setString(2, YGOProUtils.computeFormat(card));
                 stmt.setString(3, YGOProUtils.computeAlias(card));
@@ -1787,7 +1831,7 @@ public class YGOProCardMakerController implements Initializable {
                 stmt.setString(10, YGOProUtils.computeMonsterAttribute(card));
                 stmt.setString(11, YGOProUtils.computeEffectCategories(card));
                 stmt.executeUpdate();
-                stmt = conn.prepareStatement("INSERT OR REPLACE INTO \"texts\" VALUES (?, ?, ?, ?, ?, ?, ? ,?, ?, ?, ?, ?, ?, ?, ?, ?, ? , ?, ?)");
+                stmt = conn.prepareStatement("INSERT OR REPLACE INTO texts VALUES (?, ?, ?, ?, ?, ?, ? ,?, ?, ?, ?, ?, ?, ?, ?, ?, ? , ?, ?)");
                 stmt.setString(1, YGOProUtils.computeSerial(card));
                 stmt.setString(2, YGOProUtils.computeName(card));
                 stmt.setString(3, YGOProUtils.computeLoreEffect(card));
@@ -1832,7 +1876,9 @@ public class YGOProCardMakerController implements Initializable {
                 }
             }
             conn.commit();
-            stmt.close();
+            if (stmt != null) {
+                stmt.close();
+            }
             conn.close();
         } catch (SQLException | IOException ex) {
             try {
