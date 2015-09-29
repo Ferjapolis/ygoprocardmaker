@@ -13,6 +13,9 @@ import ygoprocardmaker.enumerate.CardType;
  * @author Simão Reis <dracostriker@hotmail.com>
  */
 public class YGOProUtils {
+    
+    public static final int BASE_ARCHTYPE_MASK = 0xFFF;
+    public static final int EXTENSION_ARCHTYPE_MASK = 0xF;
 
     public static String computeSerial(Card card) {
         return card.getSerial();

@@ -68,11 +68,11 @@ import static ygoprocardmaker.enumerate.CardFormat.*;
 import ygoprocardmaker.exception.ExportOperationCancelled;
 import ygoprocardmaker.exception.InvalidFieldException;
 import ygoprocardmaker.exception.InvalidPictureException;
-import ygoprocardmaker.util.FileUtils;
-import ygoprocardmaker.util.ImageUtils;
-import ygoprocardmaker.util.JavaFXUtils;
-import ygoprocardmaker.util.RegexUtils;
-import ygoprocardmaker.util.YGOProUtils;
+import static ygoprocardmaker.util.FileUtils.*;
+import static ygoprocardmaker.util.ImageUtils.*;
+import static ygoprocardmaker.util.JavaFXUtils.*;
+import static ygoprocardmaker.util.RegexUtils.*;
+import static ygoprocardmaker.util.YGOProUtils.*;
 
 /**
  *
@@ -424,26 +424,17 @@ public class YGOProCardMakerController implements Initializable {
     private MenuItem quitCmd;
 
     // Internal
-    private int currentCardId;
+    private int currentCardId = 1;
 
-    private String currentCardType;
+    private String currentCardType = "Monster";
 
-    private boolean hasPicture;
+    private boolean hasPicture = false;
 
-    final private ObservableList<Card> cardData;
+    final private ObservableList<Card> cardData = FXCollections.observableArrayList();
 
-    final private ObservableList<Archtype> archtypeData;
+    final private ObservableList<Archtype> archtypeData = FXCollections.observableArrayList();
 
-    private File setFile;
-
-    public YGOProCardMakerController() {
-        currentCardId = 1;
-        currentCardType = "Monster";
-        hasPicture = false;
-        cardData = FXCollections.observableArrayList();
-        archtypeData = FXCollections.observableArrayList();
-        setFile = null;
-    }
+    private File setFile = null;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -555,7 +546,7 @@ public class YGOProCardMakerController implements Initializable {
             alert.setTitle("File Error");
             alert.setHeaderText(null);
             alert.setContentText("Couldn't open image file.");
-            JavaFXUtils.setExceptionAlert(alert, ex).showAndWait();
+            setExceptionAlert(alert, ex).showAndWait();
         } catch (InvalidPictureException ex) {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Invalid Image");
@@ -584,11 +575,17 @@ public class YGOProCardMakerController implements Initializable {
             alert.setHeaderText(null);
             alert.setContentText("Archtype code cannot not be empty.");
             alert.showAndWait();
-        } else if (!RegexUtils.isPositiveInteger(archtypeCode.getText())) {
+        } else if (!isPositiveInteger(archtypeCode.getText())) {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Invalid Archtype Code");
             alert.setHeaderText(null);
             alert.setContentText("Archtype code must be a positive integer.");
+            alert.showAndWait();
+        } else if (Integer.parseInt(archtypeCode.getText()) > BASE_ARCHTYPE_MASK || Integer.parseInt(archtypeCode.getText()) < 1) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Invalid Archtype Code");
+            alert.setHeaderText(null);
+            alert.setContentText("Archtype code must be between 1 and " + BASE_ARCHTYPE_MASK + ".");
             alert.showAndWait();
         } else {
             addArchtype();
@@ -640,11 +637,17 @@ public class YGOProCardMakerController implements Initializable {
             alert.setHeaderText(null);
             alert.setContentText("Extension Archtype code cannot not be empty.");
             alert.showAndWait();
-        } else if (!RegexUtils.isPositiveInteger(extensionCode.getText())) {
+        } else if (!isPositiveInteger(extensionCode.getText())) {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Invalid Extension Archtype Code");
             alert.setHeaderText(null);
             alert.setContentText("Extension Archtype code must be a positive integer.");
+            alert.showAndWait();
+        } else if (Integer.parseInt(extensionCode.getText()) > EXTENSION_ARCHTYPE_MASK || Integer.parseInt(extensionCode.getText()) < 1) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Invalid Extension Archtype Code");
+            alert.setHeaderText(null);
+            alert.setContentText("Extension Archtype code must be between 1 and " + EXTENSION_ARCHTYPE_MASK + ".");
             alert.showAndWait();
         } else {
             addExtensionArchtype();
@@ -719,7 +722,7 @@ public class YGOProCardMakerController implements Initializable {
                         alert.setTitle("File Error");
                         alert.setHeaderText(null);
                         alert.setContentText("Couldn't save set.");
-                        JavaFXUtils.setExceptionAlert(alert, ex).showAndWait();
+                        setExceptionAlert(alert, ex).showAndWait();
                         return;
                     }
                 } else if (result.get() == buttonTypeCancel) {
@@ -731,7 +734,7 @@ public class YGOProCardMakerController implements Initializable {
             alert.setTitle("File Error");
             alert.setHeaderText(null);
             alert.setContentText("Couldn't create new set.");
-            JavaFXUtils.setExceptionAlert(alert, ex).showAndWait();
+            setExceptionAlert(alert, ex).showAndWait();
             return;
         }
         newSet();
@@ -805,7 +808,7 @@ public class YGOProCardMakerController implements Initializable {
                         alert.setTitle("File Error");
                         alert.setHeaderText(null);
                         alert.setContentText("Couldn't save set.");
-                        JavaFXUtils.setExceptionAlert(alert, ex).showAndWait();
+                        setExceptionAlert(alert, ex).showAndWait();
                         return;
                     }
                 } else if (result.get() == buttonTypeCancel) {
@@ -817,7 +820,7 @@ public class YGOProCardMakerController implements Initializable {
             alert.setTitle("File Error");
             alert.setHeaderText(null);
             alert.setContentText("Couldn't open set.");
-            JavaFXUtils.setExceptionAlert(alert, ex).showAndWait();
+            setExceptionAlert(alert, ex).showAndWait();
             return;
         }
         FileChooser fileChooser = new FileChooser();
@@ -839,7 +842,7 @@ public class YGOProCardMakerController implements Initializable {
             alert.setTitle("File Error");
             alert.setHeaderText(null);
             alert.setContentText("Couldn't open set.");
-            JavaFXUtils.setExceptionAlert(alert, ex).showAndWait();
+            setExceptionAlert(alert, ex).showAndWait();
         }
     }
 
@@ -901,7 +904,7 @@ public class YGOProCardMakerController implements Initializable {
             alert.setTitle("File Error");
             alert.setHeaderText(null);
             alert.setContentText("Couldn't save set.");
-            JavaFXUtils.setExceptionAlert(alert, ex).showAndWait();
+            setExceptionAlert(alert, ex).showAndWait();
         }
     }
 
@@ -958,7 +961,7 @@ public class YGOProCardMakerController implements Initializable {
             alert.setTitle("File Error");
             alert.setHeaderText(null);
             alert.setContentText("Couldn't save set.");
-            JavaFXUtils.setExceptionAlert(alert, ex).showAndWait();
+            setExceptionAlert(alert, ex).showAndWait();
         }
     }
 
@@ -1004,19 +1007,19 @@ public class YGOProCardMakerController implements Initializable {
             alert.setTitle("Card Database Error");
             alert.setHeaderText(null);
             alert.setContentText("SQLite JDBC is not installed.");
-            JavaFXUtils.setExceptionAlert(alert, ex).showAndWait();
+            setExceptionAlert(alert, ex).showAndWait();
         } catch (SQLException ex) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Card Database Error");
             alert.setHeaderText(null);
             alert.setContentText("Couldn't install set in card database.");
-            JavaFXUtils.setExceptionAlert(alert, ex).showAndWait();
+            setExceptionAlert(alert, ex).showAndWait();
         } catch (IOException ex) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Export Error");
             alert.setHeaderText(null);
             alert.setContentText("Couldn't save image or script file.");
-            JavaFXUtils.setExceptionAlert(alert, ex).showAndWait();
+            setExceptionAlert(alert, ex).showAndWait();
         } catch (ExportOperationCancelled ex) {
         }
     }
@@ -1106,7 +1109,7 @@ public class YGOProCardMakerController implements Initializable {
                 || !ygoproString14.getText().equals(card.getString14())
                 || !ygoproString15.getText().equals(card.getString15())
                 || !ygoproString16.getText().equals(card.getString16())
-                || (card.getPicture() == null ? hasPicture : !ImageUtils.compareImages(SwingFXUtils.fromFXImage(cardPicture.getImage(), null), SwingFXUtils.fromFXImage(card.getPicture(), null)))
+                || (card.getPicture() == null ? hasPicture : !compareImages(SwingFXUtils.fromFXImage(cardPicture.getImage(), null), SwingFXUtils.fromFXImage(card.getPicture(), null)))
                 || !scriptEditor.getEngine().executeScript("editor.getValue();").equals(card.getScript());
     }
 
@@ -1124,7 +1127,7 @@ public class YGOProCardMakerController implements Initializable {
         JSONArray archtypes = json.getJSONArray("archtypes");
         for (int i = 0; i < archtypes.length(); i++) {
             Archtype archtype = Archtype.fromJSON(archtypes.getJSONObject(i));
-            if (!archtype.getName().equals("") && RegexUtils.isPositiveInteger(archtype.getCode())) {
+            if (!archtype.getName().equals("") && isPositiveInteger(archtype.getCode())) {
                 savedArchtypes.add(archtype);
             }
         }
@@ -1194,7 +1197,7 @@ public class YGOProCardMakerController implements Initializable {
     }
 
     private void initializeCardScript() {
-        scriptEditor.getEngine().load("file:///" + FileUtils.getApplicationPath() + File.separator + "ace" + File.separator + "index.html");
+        scriptEditor.getEngine().load("file:///" + getApplicationPath() + File.separator + "ace" + File.separator + "index.html");
         ((JSObject) scriptEditor.getEngine().executeScript("window")).setMember("java", new Object() {
             public void paste() {
                 String content = (String) Clipboard.getSystemClipboard().getContent(DataFormat.PLAIN_TEXT);
@@ -1394,7 +1397,7 @@ public class YGOProCardMakerController implements Initializable {
         if (bufferedImage.getHeight() == 0 || bufferedImage.getWidth() == 0) {
             throw new InvalidPictureException();
         }
-        cardPicture.setImage(SwingFXUtils.toFXImage(ImageUtils.resizeImageWithHint(bufferedImage, bufferedImage.getType(), 177, 254), null));
+        cardPicture.setImage(SwingFXUtils.toFXImage(resizeImageWithHint(bufferedImage, bufferedImage.getType(), 177, 254), null));
         hasPicture = true;
     }
 
@@ -1410,25 +1413,25 @@ public class YGOProCardMakerController implements Initializable {
     }
 
     private void saveCard(Card card, boolean loaded) throws InvalidFieldException {
-        if (!RegexUtils.isPositiveInteger(cardATK.getText())) {
+        if (!isPositiveInteger(cardATK.getText())) {
             throw new InvalidFieldException("ATK field must have have a integer number.");
         }
-        if (!RegexUtils.isPositiveInteger(cardDEF.getText())) {
+        if (!isPositiveInteger(cardDEF.getText())) {
             throw new InvalidFieldException("DEF field must have have a integer number.");
         }
-        if (!RegexUtils.isPositiveInteger(cardLevelRank.getText())) {
+        if (!isPositiveInteger(cardLevelRank.getText())) {
             throw new InvalidFieldException("Level/Rank field must have have a integer number.");
         }
-        if (!RegexUtils.isPositiveInteger(cardLeftScale.getText())) {
+        if (!isPositiveInteger(cardLeftScale.getText())) {
             throw new InvalidFieldException("Pendulum Left Scale field must have have a integer number.");
         }
-        if (!RegexUtils.isPositiveInteger(cardLevelRank.getText())) {
+        if (!isPositiveInteger(cardLevelRank.getText())) {
             throw new InvalidFieldException("Pendulum Right Scale field must have have a integer number.");
         }
-        if (!RegexUtils.isPositiveInteger(cardSerial.getText())) {
+        if (!isPositiveInteger(cardSerial.getText())) {
             throw new InvalidFieldException("Serial field must have have a integer number.");
         }
-        if (!RegexUtils.isPositiveInteger(cardSerial.getText())) {
+        if (!isPositiveInteger(cardSerial.getText())) {
             throw new InvalidFieldException("Alias field must have have a integer number.");
         }
         card.setName(cardName.getText())
@@ -1737,7 +1740,7 @@ public class YGOProCardMakerController implements Initializable {
         JSONArray archtypes = json.getJSONArray("archtypes");
         for (int i = 0; i < archtypes.length(); i++) {
             Archtype archtype = Archtype.fromJSON(archtypes.getJSONObject(i));
-            if (!archtype.getName().equals("") && RegexUtils.isPositiveInteger(archtype.getCode())) {
+            if (!archtype.getName().equals("") && isPositiveInteger(archtype.getCode())) {
                 archtypeData.add(archtype);
             }
         }
@@ -1766,14 +1769,14 @@ public class YGOProCardMakerController implements Initializable {
 
     private Card cardOverrides(Connection conn, Card card) throws SQLException {
         PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(*) FROM texts WHERE id=? AND name<>?");
-        stmt.setString(1, YGOProUtils.computeSerial(card));
-        stmt.setString(2, YGOProUtils.computeName(card));
+        stmt.setString(1, computeSerial(card));
+        stmt.setString(2, computeName(card));
         ResultSet rs = stmt.executeQuery();
         rs.next();
         if (rs.getInt(1) > 0) {
             stmt = conn.prepareStatement("SELECT name FROM texts WHERE id=? AND name<>?");
-            stmt.setString(1, YGOProUtils.computeSerial(card));
-            stmt.setString(2, YGOProUtils.computeName(card));
+            stmt.setString(1, computeSerial(card));
+            stmt.setString(2, computeName(card));
             rs = stmt.executeQuery();
             return new Card(card.getId()).setName(rs.getString("name"));
         }
@@ -1819,38 +1822,38 @@ public class YGOProCardMakerController implements Initializable {
             }
             for (Card card : cardData) {
                 stmt = conn.prepareStatement("INSERT OR REPLACE INTO datas VALUES (?, ?, ?, ?, ?, ?, ? ,?, ?, ?, ?)");
-                stmt.setString(1, YGOProUtils.computeSerial(card));
-                stmt.setString(2, YGOProUtils.computeFormat(card));
-                stmt.setString(3, YGOProUtils.computeAlias(card));
-                stmt.setString(4, YGOProUtils.computeArchtype(card, archtypeData));
-                stmt.setString(5, YGOProUtils.computeType(card));
-                stmt.setString(6, YGOProUtils.computeATK(card));
-                stmt.setString(7, YGOProUtils.computeDEF(card));
-                stmt.setString(8, YGOProUtils.computeLevelRank(card));
-                stmt.setString(9, YGOProUtils.computeMonsterType(card));
-                stmt.setString(10, YGOProUtils.computeMonsterAttribute(card));
-                stmt.setString(11, YGOProUtils.computeEffectCategories(card));
+                stmt.setString(1, computeSerial(card));
+                stmt.setString(2, computeFormat(card));
+                stmt.setString(3, computeAlias(card));
+                stmt.setString(4, computeArchtype(card, archtypeData));
+                stmt.setString(5, computeType(card));
+                stmt.setString(6, computeATK(card));
+                stmt.setString(7, computeDEF(card));
+                stmt.setString(8, computeLevelRank(card));
+                stmt.setString(9, computeMonsterType(card));
+                stmt.setString(10, computeMonsterAttribute(card));
+                stmt.setString(11, computeEffectCategories(card));
                 stmt.executeUpdate();
                 stmt = conn.prepareStatement("INSERT OR REPLACE INTO texts VALUES (?, ?, ?, ?, ?, ?, ? ,?, ?, ?, ?, ?, ?, ?, ?, ?, ? , ?, ?)");
-                stmt.setString(1, YGOProUtils.computeSerial(card));
-                stmt.setString(2, YGOProUtils.computeName(card));
-                stmt.setString(3, YGOProUtils.computeLoreEffect(card));
-                stmt.setString(4, YGOProUtils.computeString1(card));
-                stmt.setString(5, YGOProUtils.computeString2(card));
-                stmt.setString(6, YGOProUtils.computeString3(card));
-                stmt.setString(7, YGOProUtils.computeString4(card));
-                stmt.setString(8, YGOProUtils.computeString5(card));
-                stmt.setString(9, YGOProUtils.computeString6(card));
-                stmt.setString(10, YGOProUtils.computeString7(card));
-                stmt.setString(11, YGOProUtils.computeString8(card));
-                stmt.setString(12, YGOProUtils.computeString9(card));
-                stmt.setString(13, YGOProUtils.computeString10(card));
-                stmt.setString(14, YGOProUtils.computeString11(card));
-                stmt.setString(15, YGOProUtils.computeString12(card));
-                stmt.setString(16, YGOProUtils.computeString13(card));
-                stmt.setString(17, YGOProUtils.computeString14(card));
-                stmt.setString(18, YGOProUtils.computeString15(card));
-                stmt.setString(19, YGOProUtils.computeString16(card));
+                stmt.setString(1, computeSerial(card));
+                stmt.setString(2, computeName(card));
+                stmt.setString(3, computeLoreEffect(card));
+                stmt.setString(4, computeString1(card));
+                stmt.setString(5, computeString2(card));
+                stmt.setString(6, computeString3(card));
+                stmt.setString(7, computeString4(card));
+                stmt.setString(8, computeString5(card));
+                stmt.setString(9, computeString6(card));
+                stmt.setString(10, computeString7(card));
+                stmt.setString(11, computeString8(card));
+                stmt.setString(12, computeString9(card));
+                stmt.setString(13, computeString10(card));
+                stmt.setString(14, computeString11(card));
+                stmt.setString(15, computeString12(card));
+                stmt.setString(16, computeString13(card));
+                stmt.setString(17, computeString14(card));
+                stmt.setString(18, computeString15(card));
+                stmt.setString(19, computeString16(card));
                 stmt.executeUpdate();
                 if (!card.getType().equals("Monster") || !card.getSubType().equals("Normal")) {
                     File script = new File("script" + File.separator + "c" + card.getSerial() + ".lua");
@@ -1979,7 +1982,7 @@ public class YGOProCardMakerController implements Initializable {
     }
 
     private void addExtensionArchtype() {
-        String name = extensionName.getText() + " " + baseArchtypes.getValue();
+        String name = extensionName.getText();
         archtypeData.add(new Archtype(name)
                 .setCode("" + (((Integer.parseInt(extensionCode.getText()) & 0xF) << 12) | (Integer.parseInt(archtypeData.get(archtypeData.indexOf(new Archtype(baseArchtypes.getValue()))).getCode()) & 0xFFF))));
         ygoproArchtype.getItems().add(name);
